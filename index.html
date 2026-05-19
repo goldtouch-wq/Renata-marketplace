@@ -19,14 +19,9 @@
         .heading-font {
             font-family: 'Orbitron', sans-serif;
         }
-        /* Custom Neon Glow Effects */
         .glow-purple {
             box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
         }
-        .glow-gold {
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
-        }
-        /* Game-like custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -38,12 +33,8 @@
             background: #8b5cf6;
             border-radius: 3px;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a78bfa;
-        }
-        /* Smooth transitions between views */
         .view-content {
-            transition: all 0.4s ease-in-out;
+            transition: all 0.3s ease-in-out;
         }
     </style>
 </head>
@@ -51,24 +42,75 @@
 
     <!-- TOP NAVIGATION BAR -->
     <nav class="border-b border-purple-900/40 bg-black/60 backdrop-blur-md sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center space-x-2 cursor-pointer" onclick="navigateTo('landing')">
+        <!-- SECRET TRIGGER: Double-click or double-tap this logo container to launch admin panel -->
+        <div class="flex items-center space-x-2 cursor-pointer select-none" odblclick="triggerAdmin()" onclick="handleLogoTap()">
             <i class="fa-solid font-black text-2xl text-purple-500 fa-shield-halved animate-pulse"></i>
             <span class="heading-font text-xl font-black tracking-widest bg-gradient-to-r from-purple-500 to-amber-400 bg-clip-text text-transparent">NEXUS</span>
         </div>
-        <!-- Live Global Status Counter -->
-        <div class="hidden sm:flex items-center space-x-4 text-xs tracking-wider heading-font">
-            <span class="flex items-center text-green-400"><span class="h-2 w-2 rounded-full bg-green-400 inline-block mr-1.5 animate-ping"></span> 1,420 ONLINE</span>
-            <span class="text-purple-400">|</span>
-            <span class="text-gray-400">9,842 VERIFIED TRADES</span>
+        <div class="flex items-center space-x-4 text-xs tracking-wider heading-font">
+            <span class="flex items-center text-green-400"><span class="h-2 w-2 rounded-full bg-green-400 inline-block mr-1.5 animate-ping"></span> ONLINE</span>
+            <button id="adminIndicator" onclick="toggleAdminPanel()" class="hidden bg-red-600 text-white font-bold px-2 py-0.5 rounded text-[10px]">ADMIN PANEL</button>
         </div>
     </nav>
+
+    <!-- HIDDEN SECRET ADMIN PANEL CONSOLE -->
+    <div id="secretAdminConsole" class="hidden bg-gray-950 border-b-2 border-red-600 p-4 relative z-40 space-y-4">
+        <div class="flex justify-between items-center">
+            <h2 class="heading-font text-red-500 font-bold text-lg uppercase tracking-wider"><i class="fa-solid fa-screwdriver-wrench mr-2"></i>Nexus Vault Manager</h2>
+            <button onclick="toggleAdminPanel()" class="text-xs text-gray-400 bg-gray-900 px-2 py-1 rounded">Minimize</button>
+        </div>
+        
+        <!-- Mobile Form Structure -->
+        <div class="grid grid-cols-1 gap-3 text-sm">
+            <div>
+                <label class="block text-gray-400 text-xs font-bold uppercase mb-1">Account Title / Headline</label>
+                <input type="text" id="admTitle" placeholder="e.g., Mythical Immortal Core Main" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-gray-400 text-xs font-bold uppercase mb-1">Price tag</label>
+                    <input type="text" id="admPrice" placeholder="₱5,000" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500">
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-xs font-bold uppercase mb-1">Account Rank</label>
+                    <input type="text" id="admRank" placeholder="Mythic 50 Stars" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-gray-400 text-xs font-bold uppercase mb-1">Win Rate %</label>
+                    <input type="text" id="admWR" placeholder="68.5% WR" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500">
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-xs font-bold uppercase mb-1">Total Skins Count</label>
+                    <input type="number" id="admSkinsCount" placeholder="120" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500">
+                </div>
+            </div>
+            <div>
+                <label class="block text-gray-400 text-xs font-bold uppercase mb-1">Account Thumbnail Screenshot URL</label>
+                <input type="text" id="admImage" placeholder="https://i.ibb.co/your-screenshot.jpg" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500">
+            </div>
+            
+            <div class="border-t border-gray-900 pt-3">
+                <p class="text-xs text-amber-500 font-bold uppercase tracking-wider mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Add Premium Skins Visualizer Cards</p>
+                <div class="space-y-2" id="adminSkinsList">
+                    <!-- Dynamic inline skin items populated here -->
+                </div>
+                <button onclick="addSkinRowField()" class="w-full mt-2 bg-gray-900 border border-gray-800 hover:bg-gray-800 text-gray-300 text-xs font-bold py-2 rounded-lg transition-colors">+ Add Skin to Showcase Card</button>
+            </div>
+
+            <div class="pt-2 grid grid-cols-2 gap-2">
+                <button onclick="saveAccountFromDashboard()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl tracking-wider heading-font uppercase text-xs">Publish Account</button>
+                <button onclick="exportSystemCode()" class="w-full bg-purple-900 hover:bg-purple-800 text-white font-bold py-3 rounded-xl tracking-wider heading-font uppercase text-xs">Copy Storage Backup</button>
+            </div>
+        </div>
+    </div>
 
     <!-- MAIN APP CONTAINER -->
     <main class="flex-grow flex flex-col">
 
         <!-- VIEW 1: HERO LANDING PAGE -->
         <div id="view-landing" class="view-content flex-grow flex flex-col justify-center items-center px-4 py-12 relative">
-            <!-- Decorative Tech Grids Background -->
             <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-950/20 via-transparent to-transparent pointer-events-none"></div>
             
             <div class="text-center max-w-2xl z-10 space-y-6">
@@ -83,20 +125,16 @@
                     The premium web vault for elite gaming assets. Instant verification, secure handoffs, and tier-one luxury gaming profiles.
                 </p>
                 
-                <!-- Action Interactive Options -->
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
-                    <!-- BUY BUTTON (FULLY FUNCTIONAL) -->
                     <button onclick="navigateTo('games')" class="w-full sm:w-52 h-14 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-xl font-bold uppercase tracking-widest heading-font transition-all transform hover:-translate-y-1 active:translate-y-0 glow-purple flex items-center justify-center space-x-2 group">
                         <i class="fa-solid fa-cart-shopping group-hover:rotate-12 transition-transform"></i>
                         <span>Buy Catalog</span>
                     </button>
-                    <!-- SELL BUTTON (DISABLED / LOCKED STATUS) -->
                     <div class="relative w-full sm:w-52 group">
                         <button class="w-full h-14 bg-gray-900/80 border border-gray-800 rounded-xl font-bold uppercase tracking-widest heading-font text-gray-500 cursor-not-allowed flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-lock text-sm"></i>
                             <span>Sell Profile</span>
                         </button>
-                        <!-- Premium Float Tooltip -->
                         <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-amber-500 text-black text-xs font-bold py-1 px-2 rounded shadow-lg text-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none heading-font tracking-wide">
                             <i class="fa-solid fa-circle-info mr-1"></i> SELL FEATURE COMING SOON
                         </div>
@@ -105,6 +143,371 @@
             </div>
         </div>
 
+        <!-- VIEW 2: GAME SELECTION CATALOGUE -->
+        <div id="view-games" class="view-content hidden flex-grow px-4 max-w-6xl mx-auto w-full py-8 space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-800 pb-6">
+                <div>
+                    <button onclick="navigateTo('landing')" class="text-xs font-bold uppercase text-purple-400 hover:text-purple-300 tracking-widest heading-font flex items-center space-x-1 mb-1">
+                        <i class="fa-solid fa-arrow-left"></i> <span>Main Menu</span>
+                    </button>
+                    <h2 class="heading-font text-3xl font-bold uppercase text-white tracking-tight">Select Battleground</h2>
+                </div>
+                <div class="relative w-full md:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+                    <input type="text" id="gameSearch" onkeyup="filterGames()" placeholder="Search active ecosystem..." class="w-full bg-gray-950 border border-gray-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors">
+                </div>
+            </div>
+
+            <div id="gamesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div data-game-name="mobile legends bang bang mlbb" onclick="navigateTo('marketplace')" class="group relative bg-gradient-to-b from-gray-900 to-black border border-purple-500/30 rounded-2xl overflow-hidden shadow-2xl cursor-pointer hover:border-purple-500 transition-all transform hover:-translate-y-1">
+                    <div class="h-44 bg-gradient-to-tr from-purple-900/60 to-slate-900 flex items-center justify-center relative">
+                        <i class="fa-solid fa-gamepad text-6xl text-purple-500/20 absolute group-hover:scale-125 transition-transform"></i>
+                        <span class="absolute top-3 right-3 bg-purple-500 text-black text-[10px] font-black uppercase px-2 py-0.5 rounded heading-font tracking-widest shadow-md animate-pulse">ACTIVE DEPOT</span>
+                    </div>
+                    <div class="p-5 border-t border-gray-900 bg-black/40">
+                        <h3 class="heading-font font-bold text-xl text-white tracking-wide uppercase">Mobile Legends: Bang Bang</h3>
+                        <div class="flex items-center justify-between text-xs text-gray-400 mt-2">
+                            <span>Available Stock: <strong id="stockCounter" class="text-purple-400">0 Active Vaults</strong></span>
+                            <span class="text-amber-400 font-bold">Premium Tier</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div data-game-name="genshin impact rpg" class="opacity-40 group relative bg-gray-950 border border-gray-900 rounded-2xl overflow-hidden cursor-not-allowed">
+                    <div class="h-44 bg-gray-900 flex items-center justify-center">
+                        <i class="fa-solid fa-dragon text-5xl text-gray-800"></i>
+                        <span class="absolute top-3 right-3 bg-gray-800 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded heading-font">STANDBY</span>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="heading-font font-bold text-xl text-gray-600 tracking-wide uppercase">Genshin Impact</h3>
+                        <p class="text-xs text-gray-700 mt-1">Ecosystem offline</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: INTERACTIVE MLBB MARKETPLACE & LOBBY -->
+        <div id="view-marketplace" class="view-content hidden flex-grow px-4 max-w-6xl mx-auto w-full py-6 space-y-6">
+            <div class="flex items-center justify-between border-b border-gray-900 pb-4">
+                <button onclick="navigateTo('games')" class="text-xs font-bold uppercase text-purple-400 hover:text-purple-300 tracking-widest heading-font flex items-center space-x-1">
+                    <i class="fa-solid fa-chevron-left"></i> <span>Back to Ecosystems</span>
+                </button>
+                <span class="heading-font text-xs font-bold tracking-widest text-amber-400 bg-amber-950/40 border border-amber-500/20 px-2.5 py-1 rounded">MLBB TRADING POST</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="marketplaceInventory">
+                <!-- AUTOMATIC CARD POPULATION ENGINE LINKS HERE -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- INTERACTIVE COSMETIC PREVIEW MODAL DRAWER -->
+    <div id="skinsModal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
+        <div class="flex items-center justify-between py-2 border-b border-gray-900">
+            <div>
+                <p class="text-xs font-bold text-purple-400 uppercase tracking-widest heading-font">Interactive Skin Vault</p>
+                <h4 id="modalAccountTitle" class="heading-font text-xl font-black uppercase text-white tracking-wide">Account Showcase</h4>
+            </div>
+            <button onclick="closeSkinsModal()" class="w-10 h-10 rounded-full bg-gray-900 border border-gray-800 text-gray-400 hover:text-white flex items-center justify-center">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+        <div class="my-auto py-8">
+            <p class="text-center text-xs tracking-widest text-gray-500 uppercase heading-font mb-4"><i class="fa-solid fa-fingerprint mr-1"></i> Swipe horizontally to view verified cosmetics</p>
+            <div id="skinsScroller" class="flex space-x-4 overflow-x-auto pb-6 pt-2 px-2 snap-x snap-mandatory">
+                <!-- POPULATES VIA SCRIPT INTERACTIVITY -->
+            </div>
+        </div>
+        <div class="text-center py-2 border-t border-gray-900 text-[11px] text-gray-600 tracking-widest heading-font uppercase">
+            NEXUS Armory System v1.1.0 // Data Matrix Safe
+        </div>
+    </div>
+
+    <!-- MAIN ENGINE LOGIC SCRIPT -->
+    <script>
+        // HARDCODED STARTER DATABASE CATALOG
+        const defaultAccounts = [
+            {
+                id: "NX-ML01",
+                name: "Mythical Immortal Collector Account",
+                rank: "Mythical Immortal (522 Stars)",
+                winrate: "74.8% Current WR",
+                totalSkins: 342,
+                price: "₱14,500",
+                image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600",
+                skins: [
+                    { name: "Gusion 'Cosmic Gleam'", tier: "LEGEND", color: "from-blue-600 to-indigo-900", icon: "fa-crown" },
+                    { name: "Granger 'Agent Z'", tier: "COLLECTOR", color: "from-purple-600 to-fuchsia-950", icon: "fa-gem" }
+                ]
+            }
+        ];
+
+        // Master Application Array (Merges hardcoded entries with browser storage data)
+        let customAccounts = JSON.parse(localStorage.getItem('nexus_custom_inventory')) || [];
+        let mlbbAccounts = [...defaultAccounts, ...customAccounts];
+
+        // Setup tap counter variable for mobile gesture access stability
+        let logoTapCount = 0;
+        let logoTapTimer = null;
+
+        window.onload = function() {
+            updateStockCounters();
+        };
+
+        function handleLogoTap() {
+            logoTapCount++;
+            if (logoTapCount === 1) {
+                logoTapTimer = setTimeout(() => { logoTapCount = 0; }, 400);
+            } else if (logoTapCount === 2) {
+                clearTimeout(logoTapTimer);
+                logoTapCount = 0;
+                triggerAdmin();
+            }
+        }
+
+        function triggerAdmin() {
+            const password = prompt("ENTER SITE MASTER CODE TO ACCESS ADMIN SYSTEM:");
+            if(password === "1234") {
+                document.getElementById('adminIndicator').classList.remove('hidden');
+                document.getElementById('secretAdminConsole').classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                // Pre-populate empty fields with an asset line field for clean workflow initialization
+                if(document.getElementById('adminSkinsList').children.length === 0) {
+                    addSkinRowField();
+                }
+            } else if (password !== null) {
+                alert("ACCESS FORBIDDEN. CREDENTIALS CRITICAL INFRASTRUCTURE FAILURE.");
+            }
+        }
+
+        function toggleAdminPanel() {
+            const consolePanel = document.getElementById('secretAdminConsole');
+            consolePanel.classList.toggle('hidden');
+        }
+
+        function addSkinRowField() {
+            const row = document.createElement('div');
+            row.className = "flex gap-1 items-center bg-black/40 p-2 border border-gray-900 rounded-lg xml-skin-input-row";
+            row.innerHTML = `
+                <input type="text" placeholder="Skin Title (e.g. Chou KOF)" class="flex-grow bg-gray-900 border border-gray-800 rounded px-2 py-1 text-xs text-white skin-name-input">
+                <select class="bg-gray-900 border border-gray-800 rounded px-1 py-1 text-xs text-amber-400 skin-tier-select">
+                    <option value="COLLECTOR">COLLECTOR</option>
+                    <option value="ASPIRANTS">ASPIRANT</option>
+                    <option value="LEGEND">LEGEND</option>
+                    <option value="KOF">KOF</option>
+                    <option value="EPIC">EPIC</option>
+                </select>
+                <button onclick="this.parentElement.remove()" class="text-red-500 text-xs px-2">X</button>
+            `;
+            document.getElementById('adminSkinsList').appendChild(row);
+        }
+
+        // VISUAL SYSTEM FORM SAVE BUTTON ACTION HOOK
+        function saveAccountFromDashboard() {
+            const title = document.getElementById('admTitle').value;
+            const price = document.getElementById('admPrice').value;
+            const rank = document.getElementById('admRank').value;
+            const wr = document.getElementById('admWR').value;
+            const skinsCount = document.getElementById('admSkinsCount').value;
+            let image = document.getElementById('admImage').value;
+
+            if(!title || !price || !rank) {
+                alert("ERROR: Title, Price, and Rank inputs are mandatory fields.");
+                return;
+            }
+            if(!image) {
+                image = "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600"; // fallback visual asset
+            }
+
+            // Extract values out from sub-field structural loop fields
+            const skinRows = document.querySelectorAll('.xml-skin-input-row');
+            let parsedSkinsArray = [];
+
+            skinRows.forEach(row => {
+                const nameInput = row.querySelector('.skin-name-input').value;
+                const tierSelect = row.querySelector('.skin-tier-select').value;
+                
+                if(nameInput) {
+                    let colorCode = "from-purple-600 to-indigo-950";
+                    let iconCode = "fa-gem";
+
+                    if(tierSelect === 'LEGEND') { colorCode = "from-blue-600 to-indigo-900"; iconCode = "fa-crown"; }
+                    if(tierSelect === 'ASPIRANTS') { colorCode = "from-pink-500 to-rose-950"; iconCode = "fa-wand-magic-sparkles"; }
+                    if(tierSelect === 'KOF') { colorCode = "from-red-600 to-stone-950"; iconCode = "fa-fire"; }
+                    if(tierSelect === 'EPIC') { colorCode = "from-emerald-600 to-slate-950"; iconCode = "fa-bolt"; }
+
+                    parsedSkinsArray.push({
+                        name: nameInput,
+                        tier: tierSelect,
+                        color: colorCode,
+                        icon: iconCode
+                    });
+                }
+            });
+
+            // Assemble the object block structural entity template mapping values safely
+            const newAccountObject = {
+                id: "NX-ML" + (mlbbAccounts.length + 1),
+                name: title,
+                rank: rank,
+                winrate: wr || "N/A",
+                totalSkins: parseInt(skinsCount) || parsedSkinsArray.length,
+                price: price,
+                image: image,
+                skins: parsedSkinsArray
+            };
+
+            // Push into temporary operational data field arrays
+            customAccounts.push(newAccountObject);
+            localStorage.setItem('nexus_custom_inventory', JSON.stringify(customAccounts));
+            mlbbAccounts = [...defaultAccounts, ...customAccounts];
+
+            // Trigger reactive dashboard state variable loop refresh runs
+            updateStockCounters();
+            if(!document.getElementById('view-marketplace').classList.contains('hidden')) {
+                renderMarketplace();
+            }
+
+            // Flush inputs cleanly for rapid next deployment sequences
+            document.getElementById('admTitle').value = '';
+            document.getElementById('admPrice').value = '';
+            document.getElementById('admRank').value = '';
+            document.getElementById('admWR').value = '';
+            document.getElementById('admSkinsCount').value = '';
+            document.getElementById('admImage').value = '';
+            document.getElementById('adminSkinsList').innerHTML = '';
+            addSkinRowField();
+
+            alert("SUCCESS! Account verified and loaded into active layout view inventory slots.");
+        }
+
+        // GENERATE RAW RECOVERY CODE BACKUP DATA CONTROLLER
+        function exportSystemCode() {
+            // Converts your manually added profiles into a clean text block
+            const dataStr = JSON.stringify(customAccounts, null, 2);
+            
+            const temporaryTextArea = document.createElement("textarea");
+            temporaryTextArea.value = dataStr;
+            document.body.appendChild(temporaryTextArea);
+            temporaryTextArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(temporaryTextArea);
+            
+            alert("ADMIN BACKUP SUCCESS!\n\nYour manually created account inventory data text has been copied directly to your phone clipboard.\n\nYou can keep this safe or paste it into your server updates!");
+        }
+
+        function updateStockCounters() {
+            document.getElementById('stockCounter').innerText = `${mlbbAccounts.length} Active Vaults`;
+        }
+
+        function navigateTo(viewId) {
+            document.getElementById('view-landing').classList.add('hidden');
+            document.getElementById('view-games').classList.add('hidden');
+            document.getElementById('view-marketplace').classList.add('hidden');
+            document.getElementById('view-' + viewId).classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if(viewId === 'marketplace') { renderMarketplace(); }
+        }
+
+        function filterGames() {
+            const query = document.getElementById('gameSearch').value.toLowerCase();
+            const gridItems = document.getElementById('gamesGrid').getElementsByTagName('div');
+            for (let i = 0; i < gridItems.length; i++) {
+                if(gridItems[i].hasAttribute('data-game-name')) {
+                    const gameKeyword = gridItems[i].getAttribute('data-game-name');
+                    gridItems[i].style.display = gameKeyword.includes(query) ? "" : "none";
+                }
+            }
+        }
+
+        function renderMarketplace() {
+            const container = document.getElementById('marketplaceInventory');
+            container.innerHTML = '';
+
+            mlbbAccounts.forEach(account => {
+                const card = document.createElement('div');
+                card.className = "bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-2xl p-4 space-y-4 shadow-lg flex flex-col justify-between";
+                
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <!-- Account Dynamic Card Header Screenshot Module -->
+                        <div class="h-44 w-full bg-gray-950 rounded-xl overflow-hidden relative border border-gray-800">
+                            <img src="${account.image}" alt="Profile Capture" class="w-full h-full object-cover opacity-75">
+                        </div>
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs bg-purple-950 border border-purple-500/30 px-2 py-0.5 rounded text-purple-400 font-bold tracking-widest heading-font">${account.id}</span>
+                            <div class="text-right">
+                                <p class="text-[10px] text-gray-500 uppercase tracking-wider heading-font">Verified Price</p>
+                                <p class="text-xl font-black text-amber-400 heading-font">${account.price}</p>
+                            </div>
+                        </div>
+                        <h3 class="heading-font font-bold text-base text-white uppercase tracking-wide leading-tight">${account.name}</h3>
+                        <div class="grid grid-cols-2 gap-2 bg-black/40 border border-gray-950 p-2.5 rounded-xl text-xs tracking-wide">
+                            <div>
+                                <span class="text-gray-500 block text-[9px] uppercase font-bold">Standing Rank</span>
+                                <span class="text-gray-200 font-semibold flex items-center gap-1"><i class="fa-solid fa-trophy text-amber-500 text-[10px]"></i> ${account.rank}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 block text-[9px] uppercase font-bold">Win Rate Integrity</span>
+                                <span class="text-gray-200 font-semibold flex items-center gap-1"><i class="fa-solid fa-chart-pie text-purple-400 text-[10px]"></i> ${account.winrate}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-1 flex items-center gap-2">
+                        <button onclick="openSkinsModal('${account.id}')" class="flex-grow h-11 bg-purple-950/60 hover:bg-purple-900 border border-purple-500/30 text-purple-300 font-bold uppercase text-xs tracking-widest heading-font rounded-xl transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                            <span>Inspect Skins (${account.totalSkins})</span>
+                        </button>
+                        <a href="https://t.me/your_telegram_or_link" target="_blank" class="w-12 h-11 bg-gray-900 border border-gray-800 hover:border-purple-500 text-gray-400 hover:text-purple-400 rounded-xl flex items-center justify-center">
+                            <i class="fa-solid fa-headset text-sm"></i>
+                        </a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openSkinsModal(accountId) {
+            const targetAccount = mlbbAccounts.find(acc => acc.id === accountId);
+            if(!targetAccount) return;
+
+            document.getElementById('modalAccountTitle').innerText = targetAccount.name;
+            const scroller = document.getElementById('skinsScroller');
+            scroller.innerHTML = '';
+
+            if(!targetAccount.skins || targetAccount.skins.length === 0) {
+                scroller.innerHTML = `<p class="text-gray-500 text-sm italic w-full text-center py-8">No high-tier display cosmetics logged inside this specific vault profile bundle.</p>`;
+            } else {
+                targetAccount.skins.forEach(skin => {
+                    const item = document.createElement('div');
+                    item.className = `flex-shrink-0 w-56 h-72 rounded-xl bg-gradient-to-b ${skin.color} p-4 flex flex-col justify-between snap-center border border-white/10 relative overflow-hidden`;
+                    item.innerHTML = `
+                        <div class="flex items-center justify-between z-10">
+                            <span class="text-[9px] font-black uppercase bg-black/40 tracking-widest heading-font px-2 py-0.5 rounded-full text-white/90 border border-white/5 flex items-center gap-1">
+                                <i class="fa-solid ${skin.icon} text-amber-400"></i> ${skin.tier}
+                            </span>
+                        </div>
+                        <div class="z-10">
+                            <p class="text-[9px] font-bold text-white/40 uppercase tracking-wider heading-font">Cosmetic ID Token</p>
+                            <h5 class="heading-font text-lg font-black text-white uppercase tracking-wide leading-tight">${skin.name}</h5>
+                            <div class="w-6 h-0.5 bg-amber-400 rounded mt-1"></div>
+                        </div>
+                    `;
+                    scroller.appendChild(item);
+                });
+            }
+
+            document.getElementById('skinsModal').classList.remove('hidden');
+        }
+
+        function closeSkinsModal() {
+            document.getElementById('skinsModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
 
         <!-- VIEW 2: GAME SELECTION CATALOGUE -->
         <div id="view-games" class="view-content hidden flex-grow px-4 max-w-6xl mx-auto w-full py-8 space-y-6">
