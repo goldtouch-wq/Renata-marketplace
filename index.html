@@ -1,718 +1,2715 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Vault | Premium Accounts</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Inter:wght@400;600&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #fff; }
-        .heading-font { font-family: 'Rajdhani', sans-serif; }
-        .glass-panel { background: rgba(15, 15, 20, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .vault-card { transition: all 0.3s ease; cursor: pointer; }
-        .vault-card:hover { transform: translateY(-4px); border-color: rgba(168, 85, 247, 0.4); }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #050505; }
-        ::-webkit-scrollbar-thumb { background: #1f1f2e; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #a855f7; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VaultX — Game Account Marketplace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ═══════════════════════════════════════════
+     ROOT & VARIABLES
+  ═══════════════════════════════════════════ */
+  :root {
+    --bg: #050508;
+    --bg2: #0a0a12;
+    --bg3: #0f0f1a;
+    --surface: #12121f;
+    --surface2: #1a1a2e;
+    --border: #2a2a45;
+    --border-glow: #5d3fd350;
+    --accent: #7b2fff;
+    --accent2: #ff2f7b;
+    --accent3: #2fffb4;
+    --accent4: #ffb42f;
+    --text: #e8e8f8;
+    --text2: #9898b8;
+    --text3: #5a5a7a;
+    --glow-purple: 0 0 20px #7b2fff60, 0 0 60px #7b2fff20;
+    --glow-pink: 0 0 20px #ff2f7b60, 0 0 60px #ff2f7b20;
+    --glow-teal: 0 0 20px #2fffb460, 0 0 60px #2fffb420;
+    --radius: 12px;
+    --radius-lg: 20px;
+    --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* Animated background */
+  body::before {
+    content:'';
+    position:fixed; inset:0; z-index:0;
+    background:
+      radial-gradient(ellipse 80% 40% at 20% 10%, #7b2fff15 0%, transparent 60%),
+      radial-gradient(ellipse 60% 30% at 80% 80%, #ff2f7b10 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 50% 50%, #2fffb408 0%, transparent 70%);
+    pointer-events:none;
+    animation: bgPulse 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes bgPulse {
+    0%   { opacity:0.6; transform:scale(1); }
+    100% { opacity:1;   transform:scale(1.05); }
+  }
+
+  /* Grid overlay */
+  body::after {
+    content:'';
+    position:fixed; inset:0; z-index:0;
+    background-image:
+      linear-gradient(rgba(123,47,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(123,47,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events:none;
+  }
+
+  /* ═══════════════════════════════════════════
+     SCROLLBAR
+  ═══════════════════════════════════════════ */
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-track { background:#0a0a12; }
+  ::-webkit-scrollbar-thumb { background:var(--accent); border-radius:3px; }
+
+  /* ═══════════════════════════════════════════
+     UTILITY
+  ═══════════════════════════════════════════ */
+  .hidden { display:none !important; }
+  .z1 { position:relative; z-index:1; }
+
+  .glass {
+    background: rgba(18,18,31,0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+  }
+
+  .glow-text-purple { text-shadow: 0 0 20px #7b2fff, 0 0 40px #7b2fff80; }
+  .glow-text-pink   { text-shadow: 0 0 20px #ff2f7b, 0 0 40px #ff2f7b80; }
+  .glow-text-teal   { text-shadow: 0 0 20px #2fffb4, 0 0 40px #2fffb480; }
+
+  /* ═══════════════════════════════════════════
+     SCANLINE EFFECT
+  ═══════════════════════════════════════════ */
+  .scanlines {
+    position:relative;
+    overflow:hidden;
+  }
+  .scanlines::after {
+    content:'';
+    position:absolute; inset:0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events:none;
+    z-index:10;
+  }
+
+  /* ═══════════════════════════════════════════
+     NAVBAR
+  ═══════════════════════════════════════════ */
+  #navbar {
+    position: fixed;
+    top:0; left:0; right:0;
+    z-index: 1000;
+    padding: 0 2rem;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(5,5,8,0.85);
+    backdrop-filter: blur(30px);
+    border-bottom: 1px solid var(--border);
+    transition: var(--transition);
+  }
+
+  #navbar.scrolled {
+    box-shadow: 0 4px 40px rgba(123,47,255,0.15);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition);
+  }
+
+  .logo:hover { transform: scale(1.03); }
+
+  .logo-icon {
+    width:40px; height:40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-family: 'Orbitron', monospace;
+    font-weight:900;
+    color:#fff;
+    box-shadow: var(--glow-purple);
+    animation: logoPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes logoPulse {
+    0%,100% { box-shadow: 0 0 10px #7b2fff60, 0 0 30px #7b2fff20; }
+    50%      { box-shadow: 0 0 20px #7b2fff, 0 0 60px #7b2fff40; }
+  }
+
+  .logo-text {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 1.4rem;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, #fff 30%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo-sub {
+    font-size: 0.55rem;
+    letter-spacing: 4px;
+    color: var(--text2);
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+    display:block;
+    margin-top:-4px;
+    -webkit-text-fill-color: var(--text2);
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .nav-btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: var(--transition);
+    text-transform: uppercase;
+  }
+
+  .nav-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(123,47,255,0.1);
+  }
+
+  .nav-btn.primary {
+    background: linear-gradient(135deg, var(--accent), #5a0fd6);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 15px rgba(123,47,255,0.3);
+  }
+
+  .nav-btn.primary:hover {
+    box-shadow: 0 0 25px rgba(123,47,255,0.6);
+    transform: translateY(-1px);
+  }
+
+  #userMenuBtn {
+    display:flex; align-items:center; gap:8px;
+    background: rgba(123,47,255,0.15);
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .avatar-dot {
+    width:28px; height:28px;
+    border-radius:50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.75rem; font-weight:700; color:#fff;
+  }
+
+  /* ═══════════════════════════════════════════
+     PAGES (views)
+  ═══════════════════════════════════════════ */
+  .page {
+    min-height: 100vh;
+    padding-top: 70px;
+    position:relative;
+    z-index:1;
+  }
+
+  /* ═══════════════════════════════════════════
+     HOME PAGE
+  ═══════════════════════════════════════════ */
+  #homePage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 2rem 4rem;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 50px;
+    background: rgba(123,47,255,0.1);
+    border: 1px solid rgba(123,47,255,0.3);
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 2rem;
+    animation: fadeSlideDown 0.6s ease both;
+  }
+
+  .hero-badge::before {
+    content:'';
+    width:6px; height:6px;
+    border-radius:50%;
+    background: var(--accent3);
+    animation: blink 1.5s infinite;
+  }
+
+  @keyframes blink {
+    0%,100% { opacity:1; }
+    50% { opacity:0.2; }
+  }
+
+  .hero-title {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: clamp(2.5rem, 8vw, 6rem);
+    line-height: 1.05;
+    letter-spacing: -1px;
+    margin-bottom: 1.5rem;
+    animation: fadeSlideDown 0.7s ease 0.1s both;
+  }
+
+  .hero-title span.g1 { color: #fff; }
+  .hero-title span.g2 {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position:relative;
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    color: var(--text2);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 3.5rem;
+    font-weight: 400;
+    animation: fadeSlideDown 0.7s ease 0.2s both;
+  }
+
+  @keyframes fadeSlideDown {
+    from { opacity:0; transform:translateY(-20px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1.5rem;
+    animation: fadeSlideDown 0.7s ease 0.3s both;
+    flex-wrap: wrap;
+    justify-content:center;
+  }
+
+  .hero-btn {
+    padding: 18px 52px;
+    border-radius: var(--radius);
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+    text-transform: uppercase;
+  }
+
+  .hero-btn::before {
+    content:'';
+    position:absolute;
+    top:-100%; left:-100%;
+    width:300%; height:300%;
+    background: conic-gradient(transparent 0deg, rgba(255,255,255,0.1) 60deg, transparent 120deg);
+    animation: spinShine 4s linear infinite;
+    opacity:0;
+    transition: opacity 0.3s;
+  }
+
+  .hero-btn:hover::before { opacity:1; }
+
+  @keyframes spinShine {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .hero-btn.buy {
+    background: linear-gradient(135deg, var(--accent), #5a0fd6);
+    color: #fff;
+    box-shadow: 0 0 30px rgba(123,47,255,0.4), 0 4px 20px rgba(0,0,0,0.3);
+  }
+
+  .hero-btn.buy:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 0 50px rgba(123,47,255,0.7), 0 8px 40px rgba(0,0,0,0.4);
+  }
+
+  .hero-btn.sell {
+    background: transparent;
+    color: var(--text3);
+    border-color: var(--border);
+    cursor: not-allowed;
+  }
+
+  .hero-btn.sell:hover {
+    transform: none;
+    border-color: var(--border);
+    box-shadow: none;
+  }
+
+  .sell-tag {
+    position:absolute;
+    top:-8px; right:-8px;
+    background: var(--accent4);
+    color: #000;
+    font-size: 0.55rem;
+    padding: 2px 8px;
+    border-radius:50px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing:1px;
+    font-weight:700;
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 2rem;
+    margin-top: 5rem;
+    padding: 1.5rem 2.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    background: rgba(12,12,20,0.6);
+    animation: fadeSlideDown 0.7s ease 0.5s both;
+    flex-wrap: wrap;
+    justify-content:center;
+  }
+
+  .stat-item {
+    text-align:center;
+    padding: 0 1.5rem;
+    border-right: 1px solid var(--border);
+  }
+  .stat-item:last-child { border-right:none; }
+
+  .stat-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display:block;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+    color: var(--text3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* Floating game icons */
+  .floating-icons {
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:0;
+  }
+
+  .float-icon {
+    position:absolute;
+    font-size: 2.5rem;
+    opacity:0.06;
+    animation: floatAround linear infinite;
+  }
+
+  @keyframes floatAround {
+    0%   { transform:translateY(0) rotate(0deg); opacity:0.06; }
+    50%  { opacity:0.12; }
+    100% { transform:translateY(-100px) rotate(20deg); opacity:0; }
+  }
+
+  /* ═══════════════════════════════════════════
+     GAMES PAGE
+  ═══════════════════════════════════════════ */
+  #gamesPage {
+    padding: 100px 2rem 4rem;
+  }
+
+  .page-header {
+    text-align:center;
+    margin-bottom: 3rem;
+  }
+
+  .page-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+  }
+
+  .page-sub {
+    color: var(--text2);
+    font-size: 1rem;
+  }
+
+  /* Search bar */
+  .search-wrap {
+    max-width: 560px;
+    margin: 0 auto 3rem;
+    position:relative;
+  }
+
+  .search-bar {
+    width:100%;
+    padding: 14px 20px 14px 52px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    outline:none;
+    transition: var(--transition);
+  }
+
+  .search-bar::placeholder { color: var(--text3); }
+
+  .search-bar:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(123,47,255,0.15), var(--glow-purple);
+  }
+
+  .search-icon {
+    position:absolute;
+    left:18px; top:50%;
+    transform:translateY(-50%);
+    color: var(--text3);
+    font-size: 1.1rem;
+    pointer-events:none;
+  }
+
+  /* Game cards grid */
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .game-card {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    cursor: pointer;
+    position:relative;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+    animation: cardIn 0.5s ease both;
+  }
+
+  @keyframes cardIn {
+    from { opacity:0; transform:translateY(30px) scale(0.95); }
+    to   { opacity:1; transform:translateY(0) scale(1); }
+  }
+
+  .game-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: var(--card-color, var(--accent));
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5),
+                0 0 30px color-mix(in srgb, var(--card-color, var(--accent)) 30%, transparent);
+  }
+
+  .game-card-banner {
+    height: 160px;
+    background: var(--card-bg, linear-gradient(135deg, var(--surface2), var(--surface)));
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .game-card-banner::before {
+    content:'';
+    position:absolute; inset:0;
+    background: var(--card-bg, linear-gradient(135deg, var(--surface2), var(--surface)));
+    z-index:0;
+  }
+
+  .game-card-banner .game-emoji {
+    font-size: 5rem;
+    z-index:1;
+    filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5));
+    transition: transform 0.4s ease;
+  }
+
+  .game-card:hover .game-emoji { transform: scale(1.1) rotate(-5deg); }
+
+  .game-card-banner .shine {
+    position:absolute; inset:0; z-index:2;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%);
+    pointer-events:none;
+  }
+
+  .game-card-body {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .game-card-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 0.4rem;
+    color: var(--card-color, var(--text));
+  }
+
+  .game-card-count {
+    font-size: 0.8rem;
+    color: var(--text3);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .game-card-count span {
+    color: var(--accent3);
+    font-weight:700;
+  }
+
+  .game-card-tag {
+    position:absolute;
+    top:12px; right:12px;
+    padding: 4px 12px;
+    border-radius:50px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--card-color, var(--border));
+    font-size:0.65rem;
+    letter-spacing:2px;
+    color: var(--card-color, var(--text2));
+    font-family: 'Space Mono', monospace;
+    text-transform:uppercase;
+    z-index:3;
+  }
+
+  /* ═══════════════════════════════════════════
+     LISTINGS PAGE
+  ═══════════════════════════════════════════ */
+  #listingsPage {
+    padding: 100px 2rem 4rem;
+  }
+
+  .listings-header {
+    display:flex;
+    align-items:center;
+    gap:1rem;
+    margin-bottom: 2rem;
+    flex-wrap:wrap;
+  }
+
+  .back-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+    font-weight:600;
+    cursor: pointer;
+    transition: var(--transition);
+    display:flex; align-items:center; gap:6px;
+  }
+  .back-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+  .listings-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.6rem;
+    font-weight:700;
+  }
+
+  .listings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    max-width:1400px;
+    margin:0 auto;
+  }
+
+  .listing-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow:hidden;
+    cursor:pointer;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    animation: cardIn 0.4s ease both;
+    position:relative;
+  }
+
+  .listing-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--accent);
+    box-shadow: 0 15px 50px rgba(0,0,0,0.4), var(--glow-purple);
+  }
+
+  .listing-img {
+    height: 180px;
+    background: linear-gradient(135deg, var(--surface2), #1a1030);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size: 4rem;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .listing-img::after {
+    content:'';
+    position:absolute;
+    bottom:0; left:0; right:0;
+    height:60px;
+    background: linear-gradient(transparent, var(--surface));
+  }
+
+  .listing-body {
+    padding: 1.2rem 1.3rem;
+  }
+
+  .listing-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .listing-stats {
+    display:flex;
+    flex-wrap:wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-pill {
+    padding: 4px 10px;
+    border-radius:50px;
+    background: rgba(123,47,255,0.1);
+    border: 1px solid rgba(123,47,255,0.2);
+    font-size: 0.72rem;
+    color: var(--text2);
+    font-family: 'Space Mono', monospace;
+    display:flex; align-items:center; gap:5px;
+  }
+
+  .stat-pill .pi {
+    color: var(--accent3);
+    font-size:0.65rem;
+  }
+
+  .listing-footer {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .listing-price {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.2rem;
+    font-weight:700;
+    color: var(--accent3);
+  }
+
+  .listing-price::before { content: '₱'; font-size:0.8em; }
+
+  .view-btn {
+    padding: 7px 16px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #5a0fd6);
+    color:#fff;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight:700;
+    font-size:0.8rem;
+    letter-spacing:1px;
+    border:none;
+    cursor:pointer;
+    transition: var(--transition);
+    text-transform:uppercase;
+  }
+
+  .view-btn:hover {
+    box-shadow: var(--glow-purple);
+    transform: scale(1.05);
+  }
+
+  .listing-badge {
+    position:absolute;
+    top:10px; left:10px;
+    padding:3px 10px;
+    border-radius:50px;
+    font-size:0.65rem;
+    letter-spacing:2px;
+    font-family:'Space Mono', monospace;
+    text-transform:uppercase;
+    font-weight:700;
+    z-index:5;
+  }
+
+  .badge-hot {
+    background: linear-gradient(135deg, #ff2f7b, #ff6b2f);
+    color:#fff;
+    box-shadow: 0 0 15px rgba(255,47,123,0.5);
+  }
+
+  .badge-new {
+    background: linear-gradient(135deg, var(--accent3), #00d4ff);
+    color:#000;
+  }
+
+  /* ═══════════════════════════════════════════
+     DETAIL MODAL
+  ═══════════════════════════════════════════ */
+  .modal-overlay {
+    position:fixed; inset:0;
+    background: rgba(0,0,0,0.85);
+    z-index: 2000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 1rem;
+    backdrop-filter:blur(10px);
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity:0; }
+    to   { opacity:1; }
+  }
+
+  .modal {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    width:100%;
+    max-width: 860px;
+    max-height: 90vh;
+    overflow-y:auto;
+    position:relative;
+    animation: modalIn 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  @keyframes modalIn {
+    from { opacity:0; transform:scale(0.9) translateY(20px); }
+    to   { opacity:1; transform:scale(1) translateY(0); }
+  }
+
+  .modal-close {
+    position:absolute;
+    top:16px; right:16px;
+    width:36px; height:36px;
+    border-radius:50%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-size:1.1rem;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition: var(--transition);
+    z-index:10;
+  }
+
+  .modal-close:hover {
+    background: rgba(255,47,123,0.1);
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+
+  .modal-hero {
+    height: 260px;
+    background: linear-gradient(135deg, #1a0a2e, #0a0a1e);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size: 7rem;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .modal-hero::before {
+    content:'';
+    position:absolute; inset:0;
+    background: radial-gradient(ellipse at center, rgba(123,47,255,0.2) 0%, transparent 70%);
+  }
+
+  .modal-hero::after {
+    content:'';
+    position:absolute; bottom:0; left:0; right:0;
+    height:100px;
+    background: linear-gradient(transparent, var(--bg3));
+  }
+
+  .modal-screenshots {
+    display:flex;
+    gap:8px;
+    padding: 0 1.5rem;
+    overflow-x:auto;
+    scrollbar-width:none;
+    margin-bottom:1.5rem;
+  }
+
+  .screenshot-thumb {
+    width:120px; height:70px;
+    border-radius:8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.8rem;
+    cursor:pointer;
+    transition: var(--transition);
+    overflow:hidden;
+  }
+
+  .screenshot-thumb:hover {
+    border-color:var(--accent);
+    transform:scale(1.05);
+  }
+
+  .modal-body {
+    padding: 0 1.5rem 1.5rem;
+  }
+
+  .modal-title {
+    font-family:'Orbitron', monospace;
+    font-size: 1.4rem;
+    font-weight:700;
+    margin-bottom:0.5rem;
+  }
+
+  .modal-stats-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap:1rem;
+    margin: 1.2rem 0;
+  }
+
+  .modal-stat {
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-align:center;
+  }
+
+  .modal-stat-label {
+    font-size:0.65rem;
+    letter-spacing:2px;
+    color: var(--text3);
+    text-transform:uppercase;
+    font-family:'Space Mono', monospace;
+    display:block;
+    margin-bottom:0.4rem;
+  }
+
+  .modal-stat-val {
+    font-family:'Orbitron', monospace;
+    font-size:1.1rem;
+    font-weight:700;
+    color: var(--accent3);
+  }
+
+  .modal-desc {
+    color: var(--text2);
+    line-height:1.7;
+    font-size:0.95rem;
+    margin-bottom:1.5rem;
+  }
+
+  .modal-footer {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding-top:1.2rem;
+    border-top: 1px solid var(--border);
+    gap:1rem;
+    flex-wrap:wrap;
+  }
+
+  .modal-price {
+    font-family:'Orbitron', monospace;
+    font-size:2rem;
+    font-weight:900;
+    color: var(--accent3);
+  }
+
+  .modal-price::before { content:'₱'; font-size:0.6em; vertical-align:middle; }
+
+  .buy-now-btn {
+    padding: 14px 40px;
+    background: linear-gradient(135deg, var(--accent3), #00cc88);
+    color: #000;
+    font-family: 'Orbitron', monospace;
+    font-weight:700;
+    font-size:0.9rem;
+    letter-spacing:2px;
+    border:none;
+    border-radius:var(--radius);
+    cursor:pointer;
+    transition: var(--transition);
+    text-transform:uppercase;
+  }
+
+  .buy-now-btn:hover {
+    transform:translateY(-2px);
+    box-shadow: var(--glow-teal);
+  }
+
+  .chat-seller-btn {
+    padding: 14px 24px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight:700;
+    font-size:0.9rem;
+    letter-spacing:1px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    transition: var(--transition);
+    text-transform:uppercase;
+  }
+
+  .chat-seller-btn:hover {
+    background: rgba(123,47,255,0.1);
+    box-shadow: var(--glow-purple);
+  }
+
+  /* ═══════════════════════════════════════════
+     CHAT PANEL
+  ═══════════════════════════════════════════ */
+  #chatToggle {
+    position:fixed;
+    bottom:24px; right:24px;
+    width:58px; height:58px;
+    border-radius:50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border:none;
+    color:#fff;
+    font-size:1.4rem;
+    cursor:pointer;
+    z-index:1500;
+    box-shadow: 0 4px 20px rgba(123,47,255,0.5);
+    transition: var(--transition);
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  #chatToggle:hover {
+    transform:scale(1.1);
+    box-shadow: 0 6px 30px rgba(123,47,255,0.7);
+  }
+
+  .chat-notif {
+    position:absolute;
+    top:-2px; right:-2px;
+    width:18px; height:18px;
+    background: var(--accent2);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.6rem;
+    font-weight:700;
+    border: 2px solid var(--bg);
+  }
+
+  #chatPanel {
+    position:fixed;
+    bottom:96px; right:24px;
+    width:360px;
+    max-height:520px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    z-index:1499;
+    display:flex;
+    flex-direction:column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), var(--glow-purple);
+    transform-origin:bottom right;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  #chatPanel.panel-hidden {
+    transform:scale(0.8) translateY(20px);
+    opacity:0;
+    pointer-events:none;
+  }
+
+  .chat-header {
+    padding: 1rem 1.2rem;
+    background: linear-gradient(135deg, rgba(123,47,255,0.2), rgba(255,47,123,0.1));
+    border-bottom: 1px solid var(--border);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+
+  .chat-header-info {
+    display:flex; align-items:center; gap:10px;
+  }
+
+  .chat-avatar {
+    width:36px; height:36px;
+    border-radius:50%;
+    background: linear-gradient(135deg, var(--accent3), #00aaff);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1rem;
+  }
+
+  .chat-name {
+    font-weight:700;
+    font-size:0.95rem;
+    font-family:'Orbitron', monospace;
+    letter-spacing:1px;
+  }
+
+  .chat-status {
+    font-size:0.65rem;
+    color: var(--accent3);
+    font-family:'Space Mono', monospace;
+    display:flex; align-items:center; gap:4px;
+  }
+
+  .chat-status::before {
+    content:'';
+    width:6px; height:6px;
+    border-radius:50%;
+    background: var(--accent3);
+    animation:blink 1.5s infinite;
+  }
+
+  .chat-messages {
+    flex:1;
+    overflow-y:auto;
+    padding: 1rem;
+    display:flex;
+    flex-direction:column;
+    gap:0.8rem;
+    scrollbar-width:thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .msg {
+    max-width:80%;
+    padding: 8px 14px;
+    border-radius: 14px;
+    font-size:0.85rem;
+    line-height:1.5;
+    animation: msgIn 0.2s ease;
+  }
+
+  @keyframes msgIn {
+    from { opacity:0; transform:translateY(8px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  .msg.incoming {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+    align-self:flex-start;
+  }
+
+  .msg.outgoing {
+    background: linear-gradient(135deg, rgba(123,47,255,0.3), rgba(123,47,255,0.1));
+    border: 1px solid rgba(123,47,255,0.3);
+    border-bottom-right-radius: 4px;
+    align-self:flex-end;
+    color:#fff;
+  }
+
+  .msg-time {
+    font-size:0.6rem;
+    color: var(--text3);
+    margin-top:2px;
+    font-family:'Space Mono', monospace;
+  }
+
+  .chat-input-row {
+    padding: 0.8rem 1rem;
+    display:flex;
+    gap:8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .chat-input {
+    flex:1;
+    padding:9px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size:0.9rem;
+    outline:none;
+    transition: var(--transition);
+  }
+
+  .chat-input:focus { border-color:var(--accent); }
+
+  .chat-send {
+    width:38px; height:38px;
+    border-radius:50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border:none;
+    color:#fff;
+    font-size:0.95rem;
+    cursor:pointer;
+    transition: var(--transition);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+
+  .chat-send:hover { transform:scale(1.1); box-shadow:var(--glow-purple); }
+
+  /* ═══════════════════════════════════════════
+     AUTH MODAL
+  ═══════════════════════════════════════════ */
+  .auth-modal {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    width:100%;
+    max-width: 440px;
+    padding: 2.5rem;
+    position:relative;
+    animation: modalIn 0.3s ease;
+  }
+
+  .auth-title {
+    font-family:'Orbitron', monospace;
+    font-size:1.4rem;
+    font-weight:700;
+    text-align:center;
+    margin-bottom:0.4rem;
+  }
+
+  .auth-sub {
+    text-align:center;
+    color:var(--text2);
+    font-size:0.85rem;
+    margin-bottom:2rem;
+  }
+
+  .form-group {
+    margin-bottom:1rem;
+  }
+
+  .form-label {
+    display:block;
+    font-size:0.8rem;
+    letter-spacing:2px;
+    color:var(--text3);
+    text-transform:uppercase;
+    font-family:'Space Mono', monospace;
+    margin-bottom:0.4rem;
+  }
+
+  .form-input {
+    width:100%;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family:'Rajdhani', sans-serif;
+    font-size:1rem;
+    outline:none;
+    transition: var(--transition);
+  }
+
+  .form-input:focus {
+    border-color:var(--accent);
+    box-shadow: 0 0 0 3px rgba(123,47,255,0.15);
+  }
+
+  .form-input::placeholder { color:var(--text3); }
+
+  .auth-btn {
+    width:100%;
+    padding:13px;
+    background: linear-gradient(135deg, var(--accent), #5a0fd6);
+    border:none;
+    border-radius:var(--radius);
+    color:#fff;
+    font-family:'Orbitron', monospace;
+    font-weight:700;
+    font-size:0.9rem;
+    letter-spacing:2px;
+    cursor:pointer;
+    transition: var(--transition);
+    text-transform:uppercase;
+    margin-top:1.2rem;
+  }
+
+  .auth-btn:hover {
+    transform:translateY(-2px);
+    box-shadow: var(--glow-purple);
+  }
+
+  .auth-switch {
+    text-align:center;
+    margin-top:1.2rem;
+    font-size:0.85rem;
+    color:var(--text3);
+  }
+
+  .auth-switch a {
+    color:var(--accent);
+    cursor:pointer;
+    text-decoration:none;
+    font-weight:600;
+  }
+
+  .auth-switch a:hover { text-decoration:underline; }
+
+  .auth-tabs {
+    display:flex;
+    background:var(--surface);
+    border-radius:var(--radius);
+    padding:4px;
+    margin-bottom:1.5rem;
+    gap:4px;
+  }
+
+  .auth-tab {
+    flex:1;
+    padding:8px;
+    border-radius:8px;
+    border:none;
+    background:transparent;
+    color:var(--text3);
+    font-family:'Rajdhani', sans-serif;
+    font-weight:600;
+    font-size:0.9rem;
+    cursor:pointer;
+    transition:var(--transition);
+    text-transform:uppercase;
+    letter-spacing:1px;
+  }
+
+  .auth-tab.active {
+    background: linear-gradient(135deg, var(--accent), #5a0fd6);
+    color:#fff;
+  }
+
+  /* ═══════════════════════════════════════════
+     ADMIN PAGE
+  ═══════════════════════════════════════════ */
+  #adminPage {
+    padding: 100px 2rem 4rem;
+    max-width:1200px;
+    margin:0 auto;
+  }
+
+  .admin-header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:2rem;
+    flex-wrap:wrap;
+    gap:1rem;
+  }
+
+  .admin-title {
+    font-family:'Orbitron', monospace;
+    font-size:1.8rem;
+    font-weight:900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+
+  .admin-badge {
+    padding:5px 14px;
+    background: rgba(255,47,123,0.1);
+    border: 1px solid rgba(255,47,123,0.3);
+    border-radius:50px;
+    font-size:0.7rem;
+    letter-spacing:3px;
+    color:var(--accent2);
+    font-family:'Space Mono', monospace;
+    text-transform:uppercase;
+  }
+
+  .add-listing-btn {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--accent3), #00aaff);
+    border:none;
+    border-radius:var(--radius);
+    color:#000;
+    font-family:'Orbitron', monospace;
+    font-weight:700;
+    font-size:0.85rem;
+    letter-spacing:2px;
+    cursor:pointer;
+    transition:var(--transition);
+    text-transform:uppercase;
+  }
+
+  .add-listing-btn:hover {
+    transform:translateY(-2px);
+    box-shadow: var(--glow-teal);
+  }
+
+  .admin-table-wrap {
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    overflow:hidden;
+  }
+
+  .admin-table {
+    width:100%;
+    border-collapse:collapse;
+  }
+
+  .admin-table th {
+    padding:14px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-size:0.7rem;
+    letter-spacing:2px;
+    color:var(--text3);
+    text-transform:uppercase;
+    font-family:'Space Mono', monospace;
+    text-align:left;
+    font-weight:400;
+  }
+
+  .admin-table td {
+    padding:14px 16px;
+    border-bottom: 1px solid rgba(42,42,69,0.5);
+    font-size:0.9rem;
+    vertical-align:middle;
+  }
+
+  .admin-table tr:last-child td { border-bottom:none; }
+
+  .admin-table tr:hover td { background:rgba(123,47,255,0.04); }
+
+  .del-btn {
+    padding:6px 14px;
+    background: rgba(255,47,123,0.1);
+    border: 1px solid rgba(255,47,123,0.3);
+    color:var(--accent2);
+    border-radius:6px;
+    font-family:'Rajdhani', sans-serif;
+    font-weight:600;
+    font-size:0.8rem;
+    cursor:pointer;
+    transition:var(--transition);
+  }
+
+  .del-btn:hover {
+    background:rgba(255,47,123,0.2);
+    border-color:var(--accent2);
+    box-shadow: 0 0 15px rgba(255,47,123,0.3);
+  }
+
+  /* Add listing form modal */
+  .add-form {
+    max-width:600px;
+  }
+
+  .form-row {
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:1rem;
+  }
+
+  .form-select {
+    width:100%;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family:'Rajdhani', sans-serif;
+    font-size:1rem;
+    outline:none;
+    transition: var(--transition);
+    cursor:pointer;
+    appearance:none;
+  }
+
+  .form-select:focus { border-color:var(--accent); }
+  .form-select option { background:var(--bg3); }
+
+  .form-textarea {
+    width:100%;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family:'Rajdhani', sans-serif;
+    font-size:1rem;
+    outline:none;
+    transition: var(--transition);
+    resize:vertical;
+    min-height:100px;
+  }
+
+  .form-textarea:focus { border-color:var(--accent); }
+
+  /* ═══════════════════════════════════════════
+     TOAST
+  ═══════════════════════════════════════════ */
+  #toast {
+    position:fixed;
+    bottom:96px; left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius:50px;
+    padding: 12px 24px;
+    font-size:0.9rem;
+    font-weight:600;
+    z-index:3000;
+    pointer-events:none;
+    opacity:0;
+    transition: all 0.3s ease;
+    white-space:nowrap;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+
+  #toast.show {
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  #toast.success { border-color:var(--accent3); color:var(--accent3); }
+  #toast.error   { border-color:var(--accent2); color:var(--accent2); }
+
+  /* ═══════════════════════════════════════════
+     LOADING SHIMMER
+  ═══════════════════════════════════════════ */
+  .shimmer {
+    background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+  }
+
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ═══════════════════════════════════════════
+     EMPTY STATE
+  ═══════════════════════════════════════════ */
+  .empty-state {
+    text-align:center;
+    padding: 4rem 2rem;
+    grid-column: 1/-1;
+  }
+
+  .empty-icon {
+    font-size:4rem;
+    margin-bottom:1rem;
+    filter:grayscale(1);
+    opacity:0.3;
+  }
+
+  .empty-text {
+    color:var(--text3);
+    font-size:0.9rem;
+    font-family:'Space Mono', monospace;
+  }
+
+  /* ═══════════════════════════════════════════
+     PARTICLES
+  ═══════════════════════════════════════════ */
+  #particles {
+    position:fixed; inset:0;
+    z-index:0;
+    pointer-events:none;
+    overflow:hidden;
+  }
+
+  .particle {
+    position:absolute;
+    width:2px; height:2px;
+    border-radius:50%;
+    background:var(--accent);
+    animation: particleFloat linear infinite;
+  }
+
+  @keyframes particleFloat {
+    0%   { transform:translateY(100vh) scale(0); opacity:0; }
+    10%  { opacity:1; }
+    90%  { opacity:1; }
+    100% { transform:translateY(-10vh) scale(1); opacity:0; }
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+  ═══════════════════════════════════════════ */
+  @media (max-width:768px) {
+    .games-grid { grid-template-columns:1fr 1fr; }
+    .listings-grid { grid-template-columns:1fr; }
+    #chatPanel { width: calc(100vw - 48px); right:24px; }
+    .form-row { grid-template-columns:1fr; }
+    .modal-stats-grid { grid-template-columns:1fr 1fr; }
+    .hero-btn { padding:15px 32px; font-size:0.85rem; }
+    .admin-table { font-size:0.8rem; }
+    .admin-table th, .admin-table td { padding:10px; }
+  }
+
+  @media (max-width:480px) {
+    .games-grid { grid-template-columns:1fr; }
+    .stats-bar { gap:1rem; padding:1rem; }
+    .stat-item { border-right:none; border-bottom:1px solid var(--border); padding:0.8rem 0; }
+    .stat-item:last-child { border-bottom:none; }
+  }
+
+  /* ═══════════════════════════════════════════
+     CONFETTI
+  ═══════════════════════════════════════════ */
+  .confetti-piece {
+    position:fixed;
+    width:8px; height:8px;
+    top:-10px;
+    z-index:9999;
+    pointer-events:none;
+    animation: confettiFall linear forwards;
+  }
+
+  @keyframes confettiFall {
+    to { transform:translateY(110vh) rotate(720deg); opacity:0; }
+  }
+</style>
 </head>
-<body class="min-h-screen flex flex-col select-none">
+<body>
 
-    <!-- NAVIGATION -->
-    <nav class="border-b border-gray-800 bg-black/50 sticky top-0 z-50 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div onclick="returnToHome()" class="flex items-center space-x-3 cursor-pointer group">
-                <i class="fa-solid fa-layer-group text-purple-500 text-xl group-hover:scale-110 transition-transform"></i>
-                <span class="text-xl font-bold heading-font tracking-wider text-white">NEXUS<span class="text-purple-500">VAULT</span></span>
-            </div>
-            <div>
-                <button onclick="toggleAdminAuth()" id="adminBtn" class="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-purple-400 transition-colors">
-                    <i class="fa-solid fa-lock mr-1"></i> Admin Console
-                </button>
-            </div>
+<!-- ═══════════════════════════════════════════
+     PARTICLES
+═══════════════════════════════════════════ -->
+<div id="particles"></div>
+
+<!-- ═══════════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════════ -->
+<nav id="navbar">
+  <a class="logo" onclick="goHome()">
+    <div class="logo-icon">V</div>
+    <div>
+      <span class="logo-text">VAULTX</span>
+      <span class="logo-sub">Game Account Marketplace</span>
+    </div>
+  </a>
+  <div class="nav-right" id="navRight">
+    <button class="nav-btn" onclick="openAdminLogin()">⚙ Admin</button>
+    <button class="nav-btn" onclick="openChat()">💬 Chat</button>
+    <button class="nav-btn primary" id="authBtn" onclick="openAuth()">Login / Sign Up</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     HOME PAGE
+═══════════════════════════════════════════ -->
+<div class="page" id="homePage">
+  <div class="floating-icons">
+    <span class="float-icon" style="left:5%;top:70%;animation-duration:12s;animation-delay:0s;">⚔️</span>
+    <span class="float-icon" style="left:15%;top:60%;animation-duration:15s;animation-delay:3s;">🌸</span>
+    <span class="float-icon" style="left:80%;top:65%;animation-duration:10s;animation-delay:1s;">🚀</span>
+    <span class="float-icon" style="left:90%;top:55%;animation-duration:14s;animation-delay:5s;">🎮</span>
+    <span class="float-icon" style="left:40%;top:80%;animation-duration:11s;animation-delay:2s;">💎</span>
+    <span class="float-icon" style="left:60%;top:75%;animation-duration:16s;animation-delay:4s;">🗡️</span>
+    <span class="float-icon" style="left:25%;top:85%;animation-duration:13s;animation-delay:6s;">🌟</span>
+  </div>
+
+  <div class="hero-badge z1">
+    <span>🔥 Premium Game Accounts</span>
+  </div>
+
+  <h1 class="hero-title z1">
+    <span class="g1">TRADE YOUR</span><br>
+    <span class="g2">DREAM ACCOUNT</span>
+  </h1>
+
+  <p class="hero-sub z1">
+    The most trusted marketplace for buying premium mobile game accounts.
+    Verified listings, instant transfers, elite accounts — all in one vault.
+  </p>
+
+  <div class="hero-actions">
+    <button class="hero-btn buy" onclick="goToBuy()">
+      ⚡ BUY ACCOUNT
+    </button>
+    <button class="hero-btn sell" disabled>
+      <span class="sell-tag">SOON</span>
+      🏷 SELL ACCOUNT
+    </button>
+  </div>
+
+  <div class="stats-bar z1">
+    <div class="stat-item">
+      <span class="stat-num" id="statAccounts">1,240+</span>
+      <span class="stat-label">Accounts Listed</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">4</span>
+      <span class="stat-label">Supported Games</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">98%</span>
+      <span class="stat-label">Happy Buyers</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">24/7</span>
+      <span class="stat-label">Live Support</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     GAMES PAGE
+═══════════════════════════════════════════ -->
+<div class="page hidden" id="gamesPage">
+  <div class="page-header">
+    <h1 class="page-title">Select <span style="color:var(--accent)">Your Game</span></h1>
+    <p class="page-sub">Choose a game category to browse accounts</p>
+  </div>
+
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" class="search-bar" id="gameSearch" placeholder="Search games..." oninput="filterGames(this.value)">
+  </div>
+
+  <div class="games-grid" id="gamesGrid">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     LISTINGS PAGE
+═══════════════════════════════════════════ -->
+<div class="page hidden" id="listingsPage">
+  <div style="max-width:1400px;margin:0 auto;">
+    <div class="listings-header">
+      <button class="back-btn" onclick="goToGames()">← Back</button>
+      <h1 class="listings-title" id="listingsTitle">Mobile Legends</h1>
+      <div style="flex:1;"></div>
+      <div class="search-wrap" style="margin:0;width:280px;">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-bar" id="listingSearch" placeholder="Search accounts..." oninput="filterListings(this.value)" style="font-size:0.85rem;">
+      </div>
+    </div>
+    <div class="listings-grid" id="listingsGrid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ADMIN PAGE
+═══════════════════════════════════════════ -->
+<div class="page hidden" id="adminPage">
+  <div class="admin-header">
+    <div>
+      <h1 class="admin-title">ADMIN PANEL</h1>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
+        <span class="admin-badge">⚡ Super Admin</span>
+        <span style="color:var(--text3);font-size:0.8rem;font-family:'Space Mono',monospace;" id="adminUserLabel"></span>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;">
+      <button class="back-btn" onclick="goHome()">← Home</button>
+      <button class="add-listing-btn" onclick="openAddListing()">+ Add Listing</button>
+    </div>
+  </div>
+
+  <div class="admin-table-wrap">
+    <table class="admin-table" id="adminTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Game</th>
+          <th>Title</th>
+          <th>Level</th>
+          <th>Skins</th>
+          <th>Price</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="adminTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     DETAIL MODAL
+═══════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="detailOverlay" onclick="closeDetailIfBg(event)">
+  <div class="modal" id="detailModal">
+    <button class="modal-close" onclick="closeDetail()">✕</button>
+    <div class="modal-hero" id="modalHero">🎮</div>
+    <div style="padding:1.5rem 1.5rem 0.5rem;">
+      <h2 class="modal-title" id="modalTitle">Account Title</h2>
+      <div class="modal-stats-grid" id="modalStats"></div>
+    </div>
+    <div class="modal-screenshots" id="modalScreenshots"></div>
+    <div class="modal-body">
+      <p class="modal-desc" id="modalDesc"></p>
+      <div class="modal-footer">
+        <span class="modal-price" id="modalPrice">0</span>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="chat-seller-btn" onclick="openChat()">💬 Chat Seller</button>
+          <button class="buy-now-btn" onclick="handleBuyNow()">⚡ BUY NOW</button>
         </div>
-    </nav>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <!-- MAIN DASHBOARD WRAPPER -->
-    <main class="flex-grow max-w-7xl mx-auto w-full px-4 py-8 relative">
-        
-        <!-- PUBLIC MARKETPLACE VIEW -->
-        <div id="marketplaceView" class="block">
-            <div class="text-center mb-12">
-                <h1 class="text-4xl md:text-5xl font-bold heading-font uppercase tracking-tight mb-3">Premium Vault Marketplace</h1>
-                <p class="text-gray-400 max-w-xl mx-auto text-sm">Secure, high-tier verified digital assets ready for instant acquisition.</p>
-            </div>
-
-            <!-- Filter Categories -->
-            <div class="flex flex-wrap gap-2 justify-center mb-10" id="filterContainer">
-                <button onclick="filterMarketplace('All')" class="px-5 py-2 rounded-full bg-purple-600 text-white text-xs font-bold uppercase tracking-wider transition-all filter-btn">All Assets</button>
-                <button onclick="filterMarketplace('Genshin Impact')" class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-all filter-btn">Genshin</button>
-                <button onclick="filterMarketplace('Honkai Star Rail')" class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-all filter-btn">HSR</button>
-                <button onclick="filterMarketplace('Wuthering Waves')" class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-all filter-btn">WuWa</button>
-                <button onclick="filterMarketplace('Mobile Legends')" class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-all filter-btn">MLBB</button>
-            </div>
-
-            <!-- Asset Grid -->
-            <div id="inventoryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Javascript Injection Point -->
-            </div>
-        </div>
-
-        <!-- LOG NEW GAME SECTION (ADMIN PANEL) -->
-        <div id="adminDashboard" class="hidden space-y-6">
-            <div class="flex justify-between items-center bg-gray-900 p-6 rounded-2xl border border-gray-800">
-                <div>
-                    <h2 class="text-2xl font-bold heading-font text-white">Asset Processing Deck</h2>
-                    <p class="text-xs text-gray-400 mt-1">Deploy, drop, or quickly modify the index listings.</p>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <button onclick="triggerAutoImport()" class="bg-gray-800 hover:bg-gray-700 text-xs font-bold uppercase tracking-widest px-4 py-2.5 rounded-xl text-purple-400 transition-colors">
-                        <i class="fa-solid fa-paste mr-1"></i> Quick Paste Parser
-                    </button>
-                    <button onclick="exitAdminDashboard()" class="bg-red-950/40 border border-red-900 text-red-400 hover:bg-red-900 hover:text-white text-xs font-bold uppercase tracking-widest px-4 py-2.5 rounded-xl transition-all">
-                        <i class="fa-solid fa-door-open mr-1"></i> Exit Admin
-                    </button>
-                </div>
-            </div>
-
-            <!-- Control System Layout -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="glass-panel p-6 rounded-2xl lg:col-span-1 h-fit border-t-4 border-t-purple-500">
-                    <h3 class="text-lg font-bold heading-font uppercase mb-4 text-white">Log Asset Entry</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Target Platform</label>
-                            <select id="newGame" onchange="updateDynamicLabels()" class="w-full bg-black border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:border-purple-500 outline-none mt-1">
-                                <option value="Genshin Impact">Genshin Impact</option>
-                                <option value="Honkai Star Rail">Honkai Star Rail</option>
-                                <option value="Wuthering Waves">Wuthering Waves</option>
-                                <option value="Mobile Legends">Mobile Legends</option>
-                            </select>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Region/Server</label>
-                                <input type="text" id="newServer" placeholder="Asia" class="w-full bg-black border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:border-purple-500 outline-none mt-1">
-                            </div>
-                            <div>
-                                <label id="levelLabel" class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Adv. Rank (AR)</label>
-                                <input type="number" id="newLevel" placeholder="Level" class="w-full bg-black border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:border-purple-500 outline-none mt-1">
-                            </div>
-                        </div>
-                        <div id="dynamicAdminFields" class="grid grid-cols-2 gap-4">
-                            <!-- Injected Dynamically Based on Game Selected -->
-                        </div>
-                        <div>
-                            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Item Manifest Summary</label>
-                            <textarea id="newDesc" rows="2" placeholder="Describe characters, inventory weapons, items..." class="w-full bg-black border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:border-purple-500 outline-none mt-1"></textarea>
-                        </div>
-                        <div>
-                            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Asset Value (PHP)</label>
-                            <input type="number" id="newPrice" placeholder="Value in ₱" class="w-full bg-black border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:border-purple-500 outline-none mt-1">
-                        </div>
-                        <div>
-                            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Media Proof Vault (Comma-Separated Gallery URLs)</label>
-                            <input type="text" id="newImages" placeholder="url1.jpg, url2.jpg, url3.jpg" class="w-full bg-black border border-gray-800 rounded-lg px-3 py-2 text-sm text-gray-400 focus:border-purple-500 outline-none mt-1">
-                        </div>
-                        <button onclick="addAsset()" class="w-full bg-purple-600 text-white font-bold uppercase tracking-wider text-xs py-3 rounded-xl hover:bg-purple-500 transition-all mt-2">
-                            Publish to Live Indices
-                        </button>
-                    </div>
-                </div>
-
-                <div class="glass-panel p-6 rounded-2xl lg:col-span-2">
-                    <h3 class="text-lg font-bold heading-font uppercase mb-4 text-white">Live System Architecture Mirror</h3>
-                    <div id="adminItemList" class="space-y-3 max-h-[620px] overflow-y-auto pr-2">
-                        <!-- Items rendered with delete control strings -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- ASSET SPEC DETAIL OVERLAY MODAL -->
-    <div id="detailModal" class="hidden fixed inset-0 z-[70] bg-black/95 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="glass-panel w-full max-w-2xl rounded-2xl overflow-hidden max-h-[90vh] flex flex-col animate-fade-in">
-            <div class="p-5 border-b border-gray-800 flex justify-between items-center bg-gray-900/60">
-                <h3 id="modalTitle" class="text-xl font-bold heading-font uppercase tracking-wider text-white">Asset Details</h3>
-                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-white w-8 h-8 rounded-full hover:bg-gray-800 flex items-center justify-center transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <div class="p-6 space-y-6 overflow-y-auto flex-grow">
-                <div id="modalStatsGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-black/40 p-4 rounded-xl border border-gray-800">
-                    <!-- Loaded dynamically -->
-                </div>
-                <div>
-                    <h4 class="text-[10px] uppercase tracking-widest text-purple-400 font-bold mb-1">Extended Manifest Documentation</h4>
-                    <p id="modalDesc" class="text-sm text-gray-300 leading-relaxed bg-gray-900/40 p-4 rounded-xl border border-gray-800/60 whitespace-pre-wrap"></p>
-                </div>
-                <div>
-                    <h4 class="text-[10px] uppercase tracking-widest text-purple-400 font-bold mb-3">Verified Media Portfolio</h4>
-                    <div id="modalGallery" class="grid grid-cols-2 gap-3">
-                        <!-- Images dynamically populating -->
-                    </div>
-                </div>
-            </div>
-            <div id="modalFooterActions" class="p-4 bg-gray-900/80 border-t border-gray-800 flex gap-3">
-                <!-- Action triggers -->
-            </div>
-        </div>
+<!-- ═══════════════════════════════════════════
+     AUTH MODAL
+═══════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="authOverlay" onclick="closeAuthIfBg(event)">
+  <div class="auth-modal">
+    <button class="modal-close" onclick="closeAuth()">✕</button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="loginTab" onclick="switchTab('login')">Login</button>
+      <button class="auth-tab" id="registerTab" onclick="switchTab('register')">Register</button>
     </div>
 
-    <!-- AUTH HOVER INTERFACE -->
-    <div id="authModal" class="hidden fixed inset-0 z-[80] bg-black/90 flex items-center justify-center">
-        <div class="glass-panel p-8 rounded-2xl w-full max-w-sm mx-4">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold heading-font uppercase tracking-widest text-white">Verify Cleared Token</h2>
-                <button onclick="toggleAdminAuth()" class="text-gray-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <input type="password" id="adminPassword" placeholder="Enter Token Passcode" class="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 mb-4 text-center tracking-widest font-mono">
-            <button onclick="verifyAdmin()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl transition-all uppercase tracking-wider text-sm">Verify Passphrase</button>
-            <p id="loginError" class="text-red-400 text-xs mt-3 hidden text-center">Authentication payload failure.</p>
-        </div>
+    <!-- Login Form -->
+    <div id="loginForm">
+      <h2 class="auth-title">Welcome Back</h2>
+      <p class="auth-sub">Sign in to your VaultX account</p>
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" class="form-input" id="loginUser" placeholder="Enter username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="loginPass" placeholder="••••••••">
+      </div>
+      <button class="auth-btn" onclick="doLogin()">⚡ Sign In</button>
+      <div class="auth-switch">No account? <a onclick="switchTab('register')">Create one</a></div>
     </div>
 
-    <!-- LIVE CONVERSATION NETWORK DRAWER -->
-    <div id="chatDrawer" class="hidden fixed inset-0 z-[60] bg-black/90 flex flex-col items-center justify-center p-4">
-        <div id="guestSetup" class="w-full max-w-md bg-gray-900 border border-gray-800 rounded-2xl p-6 hidden">
-            <div class="flex justify-between items-start mb-6">
-                <div>
-                    <h3 class="text-xl font-bold text-white heading-font uppercase">Initialize Proxy Handle</h3>
-                    <p class="text-xs text-gray-400 mt-1">Provide a communication handle for local session routing.</p>
-                </div>
-                <button onclick="closeChat()" class="text-gray-500 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <input id="guestNameInput" type="text" placeholder="Alias / Handle ID..." class="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white mb-6 focus:outline-none focus:border-purple-500">
-            <button onclick="saveGuestProfile()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl uppercase tracking-wider text-sm transition-all">Establish Contact</button>
-        </div>
+    <!-- Register Form -->
+    <div id="registerForm" class="hidden">
+      <h2 class="auth-title">Join VaultX</h2>
+      <p class="auth-sub">Create your free account today</p>
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" class="form-input" id="regUser" placeholder="Choose a username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="regEmail" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="regPass" placeholder="••••••••">
+      </div>
+      <button class="auth-btn" onclick="doRegister()">🚀 Create Account</button>
+      <div class="auth-switch">Already have one? <a onclick="switchTab('login')">Sign in</a></div>
+    </div>
+  </div>
+</div>
 
-        <div id="chatInterface" class="w-full h-full max-w-md bg-[#0a0a0c] flex flex-col hidden rounded-2xl overflow-hidden border border-gray-800">
-            <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-full bg-purple-900/50 flex items-center justify-center border border-purple-500/30">
-                        <i class="fa-solid fa-comments text-purple-400"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-white font-bold text-sm heading-font uppercase" id="chatPartner">Nexus Node</h3>
-                        <p class="text-[10px] text-gray-400" id="chatMeta">Active Interface</p>
-                    </div>
-                </div>
-                <button onclick="closeChat()" class="text-gray-500 hover:text-white w-8 h-8 rounded-full hover:bg-gray-800 flex items-center justify-center"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <div id="chatBox" class="flex-grow p-4 space-y-4 overflow-y-auto bg-black/50"></div>
-            
-            <!-- Dynamic Screenshot Attachment Strip -->
-            <div id="chatAttachmentPreview" class="hidden px-4 py-2 bg-gray-950 border-t border-gray-800 flex items-center justify-between">
-                <span class="text-xs text-purple-400 flex items-center truncate max-w-[80%]">
-                    <i class="fa-solid fa-image mr-2"></i> <span id="attachmentName" class="truncate">screenshot.png</span>
-                </span>
-                <button onclick="clearChatAttachment()" class="text-gray-500 hover:text-red-400 text-xs"><i class="fa-solid fa-circle-xmark"></i></button>
-            </div>
+<!-- ═══════════════════════════════════════════
+     ADMIN LOGIN MODAL
+═══════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="adminLoginOverlay" onclick="closeAdminLoginIfBg(event)">
+  <div class="auth-modal">
+    <button class="modal-close" onclick="closeAdminLogin()">✕</button>
+    <h2 class="auth-title" style="color:var(--accent2);">⚙ Admin Access</h2>
+    <p class="auth-sub">Restricted area — authorized personnel only</p>
+    <div class="form-group">
+      <label class="form-label">Admin Username</label>
+      <input type="text" class="form-input" id="adminUser" placeholder="admin">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Admin Password</label>
+      <input type="password" class="form-input" id="adminPass" placeholder="••••••••">
+    </div>
+    <button class="auth-btn" style="background:linear-gradient(135deg,var(--accent2),#cc0044);" onclick="doAdminLogin()">🔐 Access Admin Panel</button>
+  </div>
+</div>
 
-            <div class="p-4 bg-gray-900 border-t border-gray-800">
-                <div class="flex gap-2">
-                    <button onclick="simulateChatAttachment()" title="Attach Proof File" class="bg-black text-gray-400 border border-gray-800 hover:border-purple-500 hover:text-purple-400 w-12 rounded-xl flex items-center justify-center transition-all">
-                        <i class="fa-solid fa-paperclip"></i>
-                    </button>
-                    <input id="msgInput" onkeypress="if(event.key === 'Enter') sendMessage()" type="text" placeholder="Type message..." class="flex-grow bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500">
-                    <button onclick="sendMessage()" class="bg-purple-600 hover:bg-purple-500 px-5 py-3 rounded-xl font-bold text-sm text-white transition-all"><i class="fa-solid fa-paper-plane"></i></button>
-                </div>
-            </div>
-        </div>
+<!-- ═══════════════════════════════════════════
+     ADD LISTING MODAL
+═══════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="addListingOverlay" onclick="closeAddListingIfBg(event)">
+  <div class="modal add-form" style="padding:2rem;">
+    <button class="modal-close" onclick="closeAddListing()">✕</button>
+    <h2 style="font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:700;margin-bottom:1.5rem;">+ New Listing</h2>
+
+    <div class="form-group">
+      <label class="form-label">Game</label>
+      <select class="form-select" id="newGame">
+        <option value="mlbb">Mobile Legends: Bang Bang</option>
+        <option value="genshin">Genshin Impact</option>
+        <option value="hsr">Honkai: Star Rail</option>
+        <option value="wuwa">Wuthering Waves</option>
+      </select>
     </div>
 
-    <!-- SCRIPT INFRASTRUCTURE ENGINE -->
-    <script>
-        // CLIENT STATE REGISTRY
-        let inventory = JSON.parse(localStorage.getItem('nexus_inventory_v2')) || [];
-        let currentFilter = 'All';
-        let currentChatAccount = "";
-        let isAdminAuthenticated = false;
-        let activeDropdownId = null;
-        let pendingChatAttachment = null;
-        const ACCESS_TOKEN = "admin123";
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Title</label>
+        <input type="text" class="form-input" id="newTitle" placeholder="e.g. Mythical Glory S30">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Price (₱)</label>
+        <input type="number" class="form-input" id="newPrice" placeholder="3500">
+      </div>
+    </div>
 
-        // BASE ENGINE INITIALIZER
-        window.onload = () => {
-            if(inventory.length === 0) {
-                // Instantiating Exactly 1 Curated Premium Asset Sample Per Game Profile
-                inventory = [
-                    { 
-                        id: 101, title: 'Immortal Rank MLBB Supreme Profile', game: 'Mobile Legends', server: 'PH/Asia', 
-                        level: '115', rank: 'Mythical Immortal', skins: '482', 
-                        desc: 'Collector skins complete for main lineup. 4 KOF sets, Prime skin variant, and high maxed out emblem setups.', 
-                        price: '18500', images: ['https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=600&auto=format&fit=crop'] 
-                    },
-                    { 
-                        id: 102, title: 'Absolute End-Tier Whale Registry', game: 'Genshin Impact', server: 'Asia', 
-                        level: '60', skins: '142x5★', 
-                        desc: 'C6 R5 Raiden Shogun, C6 Yelan + Signature, C6 Nahida. Flawless sub-stat artifacts completely tuned for clean domain clearance.', 
-                        price: '29000', images: ['https://images.unsplash.com/photo-1620121692029-d088224ddc74?q=80&w=600&auto=format&fit=crop', 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop'] 
-                    },
-                    { 
-                        id: 103, title: 'Hyper-Optimized DoT Archetype Profile', game: 'Honkai Star Rail', server: 'Asia', 
-                        level: '70', skins: '52x5★', 
-                        desc: 'E6S1 Kafka, E2S1 Acheron, E1 Black Swan. Incredible speed speed-tuned configurations.', 
-                        price: '14000', images: ['https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600&auto=format&fit=crop'] 
-                    },
-                    { 
-                        id: 104, title: 'Resonance Tier 6 Complete Starter Master', game: 'Wuthering Waves', server: 'SEA', 
-                        level: '45', skins: '24x5★', 
-                        desc: 'S2 Jiyan + Emerald of Genesis signature item, S0 Jinhsi. Maximum Data Dock rating index complete.', 
-                        price: '7800', images: ['https://images.unsplash.com/photo-1553481187-be93c21490a9?q=80&w=600&auto=format&fit=crop'] 
-                    }
-                ];
-                saveInventory();
-            }
-            updateDynamicLabels();
-            renderMarketplace();
-            
-            // Context Click Window Watcher
-            window.addEventListener('click', () => {
-                if(activeDropdownId !== null) {
-                    closeDropdown(activeDropdownId);
-                }
-            });
-        };
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" id="levelLabel">Level / Rank</label>
+        <input type="text" class="form-input" id="newLevel" placeholder="e.g. 150 / Mythical Glory">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Total Skins</label>
+        <input type="number" class="form-input" id="newSkins" placeholder="85">
+      </div>
+    </div>
 
-        function saveInventory() {
-            localStorage.setItem('nexus_inventory_v2', JSON.stringify(inventory));
-        }
+    <div class="form-group" id="serverGroup">
+      <label class="form-label">Server</label>
+      <select class="form-select" id="newServer">
+        <option value="Asia">Asia</option>
+        <option value="SEA">SEA</option>
+        <option value="NA">NA</option>
+        <option value="EU">EU</option>
+        <option value="Global">Global</option>
+      </select>
+    </div>
 
-        function returnToHome() {
-            currentFilter = 'All';
-            filterMarketplace('All');
-            exitAdminDashboard();
-        }
+    <div class="form-group" id="rankGroup">
+      <label class="form-label">Highest Rank (MLBB only)</label>
+      <input type="text" class="form-input" id="newRank" placeholder="e.g. Mythical Glory">
+    </div>
 
-        // CONTROL TERMINOLOGY ENGINE
-        function updateDynamicLabels() {
-            const game = document.getElementById('newGame').value;
-            const lvlLabel = document.getElementById('levelLabel');
-            const targetDiv = document.getElementById('dynamicAdminFields');
-            
-            if (game === 'Mobile Legends') {
-                lvlLabel.innerText = 'Account Level';
-                targetDiv.innerHTML = `
-                    <div>
-                        <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Competitive Rank</label>
-                        <input type="text" id="newRank" placeholder="e.g. Mythical Immortal" class="w-full bg-black border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:border-purple-500 outline-none mt-1">
-                    </div>
-                    <div>
-                        <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Total Skin Count</label>
-                        <input type="number" id="newSkins" placeholder="Skins count" class="w-full bg-black border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:border-purple-500 outline-none mt-1">
-                    </div>
-                `;
-            } else {
-                if (game === 'Genshin Impact') lvlLabel.innerText = 'Adv. Rank (AR)';
-                else if (game === 'Honkai Star Rail') lvlLabel.innerText = 'Trailblaze Lvl (TL)';
-                else if (game === 'Wuthering Waves') lvlLabel.innerText = 'Union Lvl (UL)';
-                
-                targetDiv.innerHTML = `
-                    <div class="col-span-2">
-                        <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Total 5★ Pulls / Skins Matrix</label>
-                        <input type="text" id="newSkins" placeholder="e.g. 132x5★" class="w-full bg-black border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:border-purple-500 outline-none mt-1">
-                    </div>
-                `;
-            }
-        }
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" id="newDesc" placeholder="Describe the account in detail..."></textarea>
+    </div>
 
-        // MARKET FEED PRESENTATION LOGIC
-        function filterMarketplace(game) {
-            currentFilter = game;
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                if (btn.innerText.toLowerCase().includes(game.toLowerCase()) || (game === 'All' && btn.innerText === 'All Assets')) {
-                    btn.classList.replace('bg-gray-900', 'bg-purple-600');
-                    btn.classList.replace('text-gray-400', 'text-white');
-                    btn.classList.remove('border', 'border-gray-800');
-                } else {
-                    btn.classList.replace('bg-purple-600', 'bg-gray-900');
-                    btn.classList.replace('text-white', 'text-gray-400');
-                    btn.classList.add('border', 'border-gray-800');
-                }
-            });
-            renderMarketplace();
-        }
+    <div class="form-group">
+      <label class="form-label">Emoji Icon</label>
+      <input type="text" class="form-input" id="newEmoji" placeholder="🗡️">
+    </div>
 
-        function renderMarketplace() {
-            const grid = document.getElementById('inventoryGrid');
-            grid.innerHTML = '';
-            
-            const records = currentFilter === 'All' ? inventory : inventory.filter(i => i.game === currentFilter);
+    <button class="add-listing-btn" style="width:100%;padding:14px;font-size:0.95rem;" onclick="doAddListing()">✅ Publish Listing</button>
+  </div>
+</div>
 
-            records.forEach(account => {
-                const card = document.createElement('div');
-                card.className = "vault-card glass-panel rounded-2xl overflow-hidden flex flex-col h-full relative";
-                card.setAttribute('onclick', `openDetailModal(${account.id}, event)`);
-                
-                // Title layout configuration metrics
-                let specificationHTML = "";
-                if(account.game === 'Mobile Legends') {
-                    specificationHTML = `
-                        <span>Rank: <span class="text-white font-bold">${account.rank || 'N/A'}</span></span>
-                        <span>Skins: <span class="text-purple-400 font-bold">${account.skins || '0'}</span></span>
-                    `;
-                } else {
-                    const prefix = account.game === 'Genshin Impact' ? 'AR' : account.game === 'Honkai Star Rail' ? 'TL' : 'UL';
-                    specificationHTML = `
-                        <span>Metric: <span class="text-white font-bold">${prefix} ${account.level}</span></span>
-                        <span>Total 5★/Skins: <span class="text-purple-400 font-bold">${account.skins || '0'}</span></span>
-                    `;
-                }
+<!-- ═══════════════════════════════════════════
+     CHAT PANEL
+═══════════════════════════════════════════ -->
+<button id="chatToggle" onclick="toggleChat()">
+  💬
+  <span class="chat-notif" id="chatNotif">1</span>
+</button>
 
-                const displayCover = account.images && account.images[0] ? account.images[0] : 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=400&auto=format&fit=crop';
+<div id="chatPanel" class="panel-hidden">
+  <div class="chat-header">
+    <div class="chat-header-info">
+      <div class="chat-avatar">🤖</div>
+      <div>
+        <div class="chat-name">VAULT SUPPORT</div>
+        <div class="chat-status">Online</div>
+      </div>
+    </div>
+    <button class="modal-close" style="position:static;" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg incoming">
+      Hey! 👋 Welcome to VaultX. I can help you find the perfect game account. What game are you looking for?
+      <div class="msg-time">Support · Now</div>
+    </div>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" class="chat-input" id="chatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">➤</button>
+  </div>
+</div>
 
-                card.innerHTML = `
-                    <div class="h-44 bg-gray-900 relative">
-                        <img src="${displayCover}" class="w-full h-full object-cover opacity-60" alt="Cover">
-                        <div class="absolute top-3 left-3 bg-black/80 backdrop-blur text-[10px] font-bold tracking-widest px-3 py-1 rounded-full border border-gray-800 uppercase">
-                            ${account.game}
-                        </div>
-                        <div class="absolute bottom-3 right-3 bg-purple-600 font-bold px-3 py-1.5 rounded-xl shadow-xl text-sm heading-font">
-                            ₱${parseInt(account.price).toLocaleString()}
-                        </div>
-                        
-                        <!-- 3-Dot Action Button -->
-                        <div class="absolute top-3 right-3 z-30">
-                            <button onclick="toggleDropdown(${account.id}, event)" class="w-8 h-8 bg-black/80 hover:bg-purple-900 rounded-full flex items-center justify-center border border-gray-800 transition-colors text-white">
-                                <i class="fa-solid fa-ellipsis-vertical"></i>
-                            </button>
-                            <!-- Dropdown Node Container -->
-                            <div id="drop-${account.id}" class="hidden absolute right-0 mt-2 w-32 bg-gray-950 border border-gray-800 rounded-xl shadow-2xl py-1 text-xs text-left">
-                                <button onclick="shareAsset(${account.id}, event)" class="w-full text-left px-4 py-2 hover:bg-gray-800 flex items-center text-gray-300"><i class="fa-solid fa-share-nodes mr-2 text-purple-400"></i> Share</button>
-                                ${isAdminAuthenticated ? `<button onclick="deleteAsset(${account.id}, event)" class="w-full text-left px-4 py-2 hover:bg-red-950 text-red-400 flex items-center border-t border-gray-900"><i class="fa-solid fa-trash-can mr-2"></i> Delete</button>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-5 flex-grow flex flex-col justify-between">
-                        <div>
-                            <h3 class="font-bold heading-font uppercase text-lg text-white mb-2 tracking-wide truncate">${account.title || account.game}</h3>
-                            <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400 mb-3 bg-black/30 p-2.5 rounded-lg border border-gray-900">
-                                <span>Server: <span class="text-white">${account.server}</span></span>
-                                ${specificationHTML}
-                            </div>
-                        </div>
-                        <div class="flex gap-2 pt-2">
-                            <button onclick="openChat('Asset #${account.id} - ${account.game}', event)" class="flex-grow h-11 bg-purple-950/40 hover:bg-purple-900 border border-purple-500/20 text-purple-300 font-bold uppercase text-xs tracking-widest heading-font rounded-xl transition-all flex items-center justify-center space-x-2">
-                                <i class="fa-solid fa-message"></i>
-                                <span>Message Seller</span>
-                            </button>
-                            <button onclick="window.open('https://discord.com', '_blank'); event.stopPropagation();" class="w-12 h-11 bg-gray-900 border border-gray-800 hover:border-indigo-500 hover:text-indigo-400 text-gray-400 rounded-xl flex items-center justify-center transition-all">
-                                <i class="fa-brands fa-discord text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
+<!-- ═══════════════════════════════════════════
+     TOAST
+═══════════════════════════════════════════ -->
+<div id="toast"></div>
 
-        // OVERLAY INTERACTION CONTROLLERS
-        function toggleDropdown(id, event) {
-            event.stopPropagation();
-            if(activeDropdownId !== null && activeDropdownId !== id) {
-                closeDropdown(activeDropdownId);
-            }
-            const drop = document.getElementById(`drop-${id}`);
-            if(drop.classList.contains('hidden')) {
-                drop.classList.remove('hidden');
-                activeDropdownId = id;
-            } else {
-                drop.classList.add('hidden');
-                activeDropdownId = null;
-            }
-        }
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+/* ════════════════════════════════════════════
+   DATA
+════════════════════════════════════════════ */
+const GAMES = [
+  {
+    id: 'mlbb',
+    name: 'Mobile Legends: Bang Bang',
+    short: 'MLBB',
+    emoji: '⚔️',
+    bg: 'linear-gradient(135deg, #1a0010, #3d0020, #1a0010)',
+    color: '#ff2f7b',
+    tag: 'Action MOBA',
+    type: 'mlbb',
+  },
+  {
+    id: 'genshin',
+    name: 'Genshin Impact',
+    short: 'GENSHIN',
+    emoji: '🌸',
+    bg: 'linear-gradient(135deg, #0a1a10, #0f3020, #0a1a10)',
+    color: '#2fffb4',
+    tag: 'Open World RPG',
+    type: 'gacha',
+  },
+  {
+    id: 'hsr',
+    name: 'Honkai: Star Rail',
+    short: 'HSR',
+    emoji: '🚀',
+    bg: 'linear-gradient(135deg, #0a0a2a, #1a102a, #0a0a2a)',
+    color: '#7b2fff',
+    tag: 'Turn-based RPG',
+    type: 'gacha',
+  },
+  {
+    id: 'wuwa',
+    name: 'Wuthering Waves',
+    short: 'WUWA',
+    emoji: '🌊',
+    bg: 'linear-gradient(135deg, #001a1a, #002a3a, #001a1a)',
+    color: '#2fd4ff',
+    tag: 'Action RPG',
+    type: 'gacha',
+  },
+];
 
-        function closeDropdown(id) {
-            const drop = document.getElementById(`drop-${id}`);
-            if(drop) drop.classList.add('hidden');
-            activeDropdownId = null;
-        }
+// Seed listings data
+let LISTINGS = [
+  // MLBB
+  {
+    id: 1, game:'mlbb', emoji:'⚔️',
+    title:'Mythical Glory Legend Account',
+    rank:'Mythical Glory', level:150, skins:120,
+    price:8500,
+    desc:'Full S-tier account with Mythical Glory rank achieved multiple seasons. 120+ skins including multiple Limited Collector skins. Granger Lightborn, Fanny Imperial, Kagura Kimono included. Never logged by others — complete ownership transfer. Inbox included.',
+    badge:'hot', screenshots:['🗡️','⚔️','🛡️','🏆']
+  },
+  {
+    id: 2, game:'mlbb', emoji:'🗡️',
+    title:'Legend Rank Full Skins Bundle',
+    rank:'Legend', level:120, skins:85,
+    price:4200,
+    desc:'Solid Legend rank account. 85 skins with multiple Epic and Special skin types. Great for players who want to play competitively without spending thousands.',
+    badge:'', screenshots:['🗡️','⚔️','🛡️']
+  },
+  {
+    id: 3, game:'mlbb', emoji:'🏆',
+    title:'Mythic Immortal Clean Account',
+    rank:'Mythic Immortal', level:180, skins:210,
+    price:15000,
+    desc:'Top 1% account. Mythic Immortal rank with 210 skins. All Special Forces, all Collector skins. 7-star heroes. This is the pinnacle of MLBB accounts available.',
+    badge:'hot', screenshots:['🏆','⚔️','🌟','💎','🗡️']
+  },
+  {
+    id: 4, game:'mlbb', emoji:'💎',
+    title:'Epic Rank Starter Package',
+    rank:'Epic', level:68, skins:42,
+    price:1500,
+    desc:'A great starter account with Epic rank and 42 skins. Perfect for returning players or beginners who want a head start.',
+    badge:'new', screenshots:['💎','⚔️']
+  },
+  // GENSHIN
+  {
+    id: 5, game:'genshin', emoji:'🌸',
+    title:'AR60 5-Star Constellation Powerhouse',
+    arLevel:'AR60', skins:'154×5★', server:'Asia',
+    price:12000,
+    desc:'AR60 maxed-out Genshin Impact Asia account. 154 five-star characters/weapons pulled. Features C6 Hu Tao, C6 Raiden, C2 Neuvillette, C2 Furina. All Archons owned. Abyss 36-starred every reset.',
+    badge:'hot', screenshots:['🌸','⭐','🌟','💫','🎭']
+  },
+  {
+    id: 6, game:'genshin', emoji:'⭐',
+    title:'AR55 Asia — New Meta 5-Stars',
+    arLevel:'AR55', skins:'87×5★', server:'Asia',
+    price:5500,
+    desc:'AR55 Asia account featuring the latest banner characters. Includes Arlecchino, Clorinde, Mavuika, and Citlali. Full team comps ready to push Abyss.',
+    badge:'new', screenshots:['⭐','🌸','🎭']
+  },
+  {
+    id: 7, game:'genshin', emoji:'🎭',
+    title:'AR50 EU Account — Starter Meta',
+    arLevel:'AR50', skins:'45×5★', server:'EU',
+    price:2800,
+    desc:'Clean EU AR50 Genshin account. 45 five-stars with Zhongli, Kazuha, and Hu Tao included. Perfect EU timezone account with great story progress.',
+    badge:'', screenshots:['🎭','🌸']
+  },
+  // HSR
+  {
+    id: 8, game:'hsr', emoji:'🚀',
+    title:'TL70 Full Eidolon Ruan Mei + Acheron',
+    arLevel:'TL70', skins:'98×5★', server:'Asia',
+    price:9800,
+    desc:'TL70 Asia Honkai: Star Rail account. 98 five-star pulls recorded. Features E6 Ruan Mei, E2 Acheron, E1 Firefly, Boothill, and Robin. MoC 12 clear every cycle.',
+    badge:'hot', screenshots:['🚀','⭐','🌟','💫']
+  },
+  {
+    id: 9, game:'hsr', emoji:'🌌',
+    title:'TL65 NA — Recent Banners Cleared',
+    arLevel:'TL65', skins:'62×5★', server:'NA',
+    price:4500,
+    desc:'TL65 NA account with Acheron, Sunday, and the latest Amphoreus characters. Great for NA players who want to jump into endgame content immediately.',
+    badge:'new', screenshots:['🌌','🚀']
+  },
+  // WUWA
+  {
+    id: 10, game:'wuwa', emoji:'🌊',
+    title:'UL60 SEA — Camellya + Carlotta Maxed',
+    arLevel:'UL60', skins:'76×5★', server:'SEA',
+    price:7200,
+    desc:'UL60 Wuthering Waves SEA account. 76 five-star characters and weapons. Camellya S6, Carlotta S3, Jinhsi S1. Full Tower of Adversity cleared. Great abyss-ready account.',
+    badge:'hot', screenshots:['🌊','🌟','⭐','💫']
+  },
+  {
+    id: 11, game:'wuwa', emoji:'💨',
+    title:'UL45 Global Account — Fresh Start',
+    arLevel:'UL45', skins:'30×5★', server:'Global',
+    price:1800,
+    desc:'UL45 Global Wuthering Waves account. 30 five-star characters. Jinhsi, Encore, and Jiyan included. Great for players jumping into the game fresh.',
+    badge:'new', screenshots:['💨','🌊']
+  },
+];
 
-        function shareAsset(id, event) {
-            event.stopPropagation();
-            alert(`Asset index path linked to clip buffer: [Nexus ID Reference: #${id}]`);
-            if(activeDropdownId) closeDropdown(activeDropdownId);
-        }
+let nextId = 12;
 
-        // EXPANDED INFORMATION SPEC DETAIL MODAL
-        function openDetailModal(id, event) {
-            const item = inventory.find(i => i.id === id);
-            if(!item) return;
+/* ════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════ */
+let currentPage = 'home';
+let currentGame = null;
+let currentUser = null; // { username, isAdmin }
+let chatOpen = false;
+let filteredListings = [];
 
-            document.getElementById('modalTitle').innerText = item.title || item.game;
-            document.getElementById('modalDesc').innerText = item.desc;
-            
-            const statsGrid = document.getElementById('modalStatsGrid');
-            const prefix = item.game === 'Genshin Impact' ? 'AR' : item.game === 'Honkai Star Rail' ? 'TL' : item.game === 'Wuthering Waves' ? 'UL' : 'Lvl';
-            
-            statsGrid.innerHTML = `
-                <div><p class="text-[10px] text-gray-500 font-bold uppercase">Platform</p><p class="text-sm text-white font-bold mt-0.5">${item.game}</p></div>
-                <div><p class="text-[10px] text-gray-500 font-bold uppercase">Server/Region</p><p class="text-sm text-white font-bold mt-0.5">${item.server}</p></div>
-                <div><p class="text-[10px] text-gray-500 font-bold uppercase">${item.game === 'Mobile Legends' ? 'Rank' : 'Account Tier'}</p><p class="text-sm text-white font-bold mt-0.5">${item.game === 'Mobile Legends' ? item.rank : prefix + ' ' + item.level}</p></div>
-                <div><p class="text-[10px] text-gray-500 font-bold uppercase">Skins/Assets</p><p class="text-sm text-purple-400 font-bold mt-0.5">${item.skins}</p></div>
-            `;
+/* ════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  spawnParticles();
+  renderGames(GAMES);
+  updateStatCount();
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+  });
+  // Update server group visibility
+  document.getElementById('newGame').addEventListener('change', toggleAdminFormFields);
+  toggleAdminFormFields();
+});
 
-            const gallery = document.getElementById('modalGallery');
-            gallery.innerHTML = '';
-            if (item.images && item.images.length > 0) {
-                item.images.forEach(imgUrl => {
-                    if(imgUrl.trim() === "") return;
-                    gallery.innerHTML += `<img src="${imgUrl.trim()}" class="w-full h-auto rounded-xl border border-gray-800 hover:scale-[1.02] transition-transform duration-300" alt="Proof">`;
-                });
-            } else {
-                gallery.innerHTML = `<p class="text-xs text-gray-600 italic col-span-2">No verification snapshots cataloged.</p>`;
-            }
+/* ════════════════════════════════════════════
+   PARTICLES
+════════════════════════════════════════════ */
+function spawnParticles() {
+  const container = document.getElementById('particles');
+  const colors = ['#7b2fff','#ff2f7b','#2fffb4','#ffb42f','#2fd4ff'];
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left: ${Math.random() * 100}%;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      width: ${Math.random() * 3 + 1}px;
+      height: ${Math.random() * 3 + 1}px;
+      animation-duration: ${Math.random() * 15 + 8}s;
+      animation-delay: ${Math.random() * 10}s;
+      opacity: ${Math.random() * 0.4 + 0.1};
+    `;
+    container.appendChild(p);
+  }
+}
 
-            const footer = document.getElementById('modalFooterActions');
-            footer.innerHTML = `
-                <div class="text-left flex-grow">
-                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Market Valuation</p>
-                    <p class="text-xl font-bold text-white heading-font">₱${parseInt(item.price).toLocaleString()}</p>
-                </div>
-                <button onclick="openChat('Asset #${item.id} - ${item.game}', event); closeDetailModal();" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold uppercase tracking-widest px-6 py-3 rounded-xl transition-all flex items-center"><i class="fa-solid fa-message mr-2"></i> Inquire Listing</button>
-            `;
+/* ════════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════════ */
+function showPage(id) {
+  ['homePage','gamesPage','listingsPage','adminPage'].forEach(p => {
+    document.getElementById(p).classList.add('hidden');
+  });
+  document.getElementById(id).classList.remove('hidden');
+  window.scrollTo({ top:0, behavior:'smooth' });
+  currentPage = id.replace('Page','');
+}
 
-            document.getElementById('detailModal').classList.remove('hidden');
-        }
+function goHome() {
+  showPage('homePage');
+}
 
-        function closeDetailModal() {
-            document.getElementById('detailModal').classList.add('hidden');
-        }
+function goToBuy() {
+  showPage('gamesPage');
+}
 
-        // REAL-TIME SESSION CONVERSATION CONTROLLER
-        function openChat(accountRef, event) {
-            if(event) event.stopPropagation();
-            currentChatAccount = accountRef;
-            const drawer = document.getElementById('chatDrawer');
-            drawer.classList.remove('hidden');
-            
-            const nameToken = localStorage.getItem('nexus_guest_name');
-            if(!nameToken) {
-                document.getElementById('guestSetup').classList.remove('hidden');
-                document.getElementById('chatInterface').classList.add('hidden');
-            } else {
-                document.getElementById('guestSetup').classList.add('hidden');
-                document.getElementById('chatInterface').classList.remove('hidden');
-                document.getElementById('chatPartner').innerText = "Inquiry: " + accountRef;
-                document.getElementById('chatMeta').innerText = `Routing as user: ${nameToken}`;
-                loadChatHistory();
-            }
-        }
+function goToGames() {
+  showPage('gamesPage');
+}
 
-        function saveGuestProfile() {
-            const val = document.getElementById('guestNameInput').value.trim();
-            if(!val) return;
-            localStorage.setItem('nexus_guest_name', val);
-            openChat(currentChatAccount);
-        }
+function updateStatCount() {
+  document.getElementById('statAccounts').textContent = (1200 + LISTINGS.length) + '+';
+}
 
-        function closeChat() {
-            document.getElementById('chatDrawer').classList.add('hidden');
-            clearChatAttachment();
-        }
+/* ════════════════════════════════════════════
+   GAMES GRID
+════════════════════════════════════════════ */
+function renderGames(games) {
+  const grid = document.getElementById('gamesGrid');
+  grid.innerHTML = '';
+  if (games.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No games found</div></div>`;
+    return;
+  }
+  games.forEach((g, i) => {
+    const count = LISTINGS.filter(l => l.game === g.id).length;
+    const card = document.createElement('div');
+    card.className = 'game-card';
+    card.style.cssText = `--card-color:${g.color};--card-bg:${g.bg};animation-delay:${i*0.1}s`;
+    card.innerHTML = `
+      <div class="game-card-banner">
+        <div class="shine"></div>
+        <span class="game-emoji">${g.emoji}</span>
+        <span class="game-card-tag">${g.tag}</span>
+      </div>
+      <div class="game-card-body">
+        <div class="game-card-name">${g.name}</div>
+        <div class="game-card-count"><span>${count}</span> accounts available</div>
+      </div>
+    `;
+    card.onclick = () => openGame(g.id);
+    grid.appendChild(card);
+  });
+}
 
-        function simulateChatAttachment() {
-            const simulatedUrl = prompt("Simulate Screenshot Submission\nEnter Image Address URL (or press OK for default demo asset proof):", "https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=100");
-            if(simulatedUrl === null) return;
-            
-            pendingChatAttachment = simulatedUrl;
-            document.getElementById('attachmentName').innerText = "Screenshot_Attached_Proof.png";
-            document.getElementById('chatAttachmentPreview').classList.remove('hidden');
-        }
+function filterGames(q) {
+  const lower = q.toLowerCase();
+  const filtered = GAMES.filter(g =>
+    g.name.toLowerCase().includes(lower) ||
+    g.short.toLowerCase().includes(lower) ||
+    g.tag.toLowerCase().includes(lower)
+  );
+  renderGames(filtered);
+}
 
-        function clearChatAttachment() {
-            pendingChatAttachment = null;
-            document.getElementById('chatAttachmentPreview').classList.add('hidden');
-        }
+/* ════════════════════════════════════════════
+   LISTINGS
+════════════════════════════════════════════ */
+function openGame(gameId) {
+  currentGame = gameId;
+  const game = GAMES.find(g => g.id === gameId);
+  document.getElementById('listingsTitle').textContent = game.name + ' Accounts';
+  document.getElementById('listingSearch').value = '';
+  filteredListings = LISTINGS.filter(l => l.game === gameId);
+  renderListings(filteredListings, gameId);
+  showPage('listingsPage');
+}
 
-        function loadChatHistory() {
-            const box = document.getElementById('chatBox');
-            box.innerHTML = '';
-            const logs = JSON.parse(localStorage.getItem(`nexus_chat_${currentChatAccount}`)) || [];
-            
-            logs.forEach(log => {
-                const wrapper = document.createElement('div');
-                wrapper.className = log.sender === 'user' ? "flex justify-end mb-3" : "flex justify-start mb-3";
-                
-                let embeddedImage = log.attachment ? `<img src="${log.attachment}" class="w-full max-w-[200px] h-auto rounded-lg mb-1.5 border border-purple-500/30" alt="Upload">` : '';
-                
-                if(log.sender === 'user') {
-                    wrapper.innerHTML = `<div class="bg-purple-600 px-4 py-2.5 rounded-2xl rounded-tr-sm text-sm text-white max-w-[85%] shadow-md">${embeddedImage}<div>${log.text}</div></div>`;
-                } else {
-                    wrapper.innerHTML = `<div class="bg-gray-800 border border-gray-700 px-4 py-2.5 rounded-2xl rounded-tl-sm text-sm text-gray-200 max-w-[85%] shadow-md">${embeddedImage}<div>${log.text}</div></div>`;
-                }
-                box.appendChild(wrapper);
-            });
-            box.scrollTop = box.scrollHeight;
-        }
+function renderListings(listings, gameId) {
+  const game = GAMES.find(g => g.id === gameId || g.id === currentGame);
+  const grid = document.getElementById('listingsGrid');
+  grid.innerHTML = '';
 
-        function sendMessage() {
-            const input = document.getElementById('msgInput');
-            const txt = input.value.trim();
-            if(!txt && !pendingChatAttachment) return;
+  if (listings.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">${game?.emoji||'🎮'}</div><div class="empty-text">No accounts found matching your search.</div></div>`;
+    return;
+  }
 
-            const logs = JSON.parse(localStorage.getItem(`nexus_chat_${currentChatAccount}`)) || [];
-            logs.push({ sender: 'user', text: txt || "Sent an attachment proof.", attachment: pendingChatAttachment });
-            localStorage.setItem(`nexus_chat_${currentChatAccount}`, JSON.stringify(logs));
-            
-            input.value = "";
-            clearChatAttachment();
-            loadChatHistory();
+  listings.forEach((l, i) => {
+    const card = document.createElement('div');
+    card.className = 'listing-card';
+    card.style.animationDelay = `${i*0.07}s`;
 
-            if(logs.length <= 2) {
-                setTimeout(() => {
-                    const dynamicLogs = JSON.parse(localStorage.getItem(`nexus_chat_${currentChatAccount}`)) || [];
-                    dynamicLogs.push({ sender: 'system', text: "Nexus Agent Dispatch: We recorded your brief info packet and attachment. If urgent, connect through our external Discord token array to match with an active broker verification pool." });
-                    localStorage.setItem(`nexus_chat_${currentChatAccount}`, JSON.stringify(dynamicLogs));
-                    loadChatHistory();
-                }, 1200);
-            }
-        }
+    let statsHtml = '';
+    if (game && game.type === 'mlbb') {
+      statsHtml = `
+        <span class="stat-pill"><span class="pi">🏅</span> ${l.rank}</span>
+        <span class="stat-pill"><span class="pi">⚡</span> Lvl ${l.level}</span>
+        <span class="stat-pill"><span class="pi">🎨</span> ${l.skins} Skins</span>
+      `;
+    } else {
+      const lvlLabel = game?.id === 'genshin' ? 'AR' : game?.id === 'hsr' ? 'TL' : 'UL';
+      statsHtml = `
+        <span class="stat-pill"><span class="pi">📊</span> ${lvlLabel} ${l.arLevel?.replace(/AR|TL|UL/,'')}</span>
+        <span class="stat-pill"><span class="pi">⭐</span> ${l.skins}</span>
+        ${l.server ? `<span class="stat-pill"><span class="pi">🌐</span> ${l.server}</span>` : ''}
+      `;
+    }
 
-        // QUICK PASTE INPUT PARSER
-        function triggerAutoImport() {
-            const str = prompt("Input structural asset metrics (Format: Game, Region, Level, Value)\nExample: Genshin Impact, Asia, 60, 25000");
-            if(!str) return;
-            const segments = str.split(',').map(s => s.trim());
-            if(segments.length >= 4) {
-                const checkGame = segments[0].toLowerCase();
-                let matchedGame = "Genshin Impact";
-                if(checkGame.includes('star rail') || checkGame.includes('hsr')) matchedGame = "Honkai Star Rail";
-                if(checkGame.includes('wuthering') || checkGame.includes('wuwa')) matchedGame = "Wuthering Waves";
-                if(checkGame.includes('legends') || checkGame.includes('mlbb')) matchedGame = "Mobile Legends";
+    const badgeHtml = l.badge === 'hot'
+      ? '<span class="listing-badge badge-hot">🔥 Hot</span>'
+      : l.badge === 'new'
+      ? '<span class="listing-badge badge-new">✨ New</span>'
+      : '';
 
-                document.getElementById('newGame').value = matchedGame;
-                updateDynamicLabels();
-                document.getElementById('newServer').value = segments[1];
-                document.getElementById('newLevel').value = segments[2].replace(/\D/g,'');
-                document.getElementById('newPrice').value = segments[3].replace(/\D/g,'');
-                alert("Data localized! Finalize metadata summary before live deployment.");
-            } else {
-                alert("String format structural failure. Re-verify commas.");
-            }
-        }
+    card.innerHTML = `
+      ${badgeHtml}
+      <div class="listing-img">${l.emoji}</div>
+      <div class="listing-body">
+        <div class="listing-title">${l.title}</div>
+        <div class="listing-stats">${statsHtml}</div>
+        <div class="listing-footer">
+          <span class="listing-price">${l.price.toLocaleString()}</span>
+          <button class="view-btn" onclick="openDetail(${l.id})">View →</button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
 
-        // SECURITY PLATFORM AUTHENTICATION
-        function toggleAdminAuth() {
-            if(isAdminAuthenticated) {
-                exitAdminDashboard();
-            } else {
-                document.getElementById('authModal').classList.remove('hidden');
-            }
-        }
+function filterListings(q) {
+  const base = LISTINGS.filter(l => l.game === currentGame);
+  const lower = q.toLowerCase();
+  filteredListings = base.filter(l =>
+    l.title.toLowerCase().includes(lower) ||
+    (l.rank && l.rank.toLowerCase().includes(lower)) ||
+    (l.server && l.server.toLowerCase().includes(lower)) ||
+    String(l.price).includes(lower)
+  );
+  renderListings(filteredListings, currentGame);
+}
 
-        function verifyAdmin() {
-            const pass = document.getElementById('adminPassword').value;
-            if(pass === ACCESS_TOKEN) {
-                isAdminAuthenticated = true;
-                document.getElementById('authModal').classList.add('hidden');
-                document.getElementById('marketplaceView').classList.add('hidden');
-                document.getElementById('adminDashboard').classList.remove('hidden');
-                document.getElementById('adminBtn').innerText = "Exit Control Panel";
-                document.getElementById('adminBtn').classList.add('text-purple-400');
-                renderAdminList();
-                renderMarketplace();
-            } else {
-                document.getElementById('loginError').classList.remove('hidden');
-            }
-        }
+/* ════════════════════════════════════════════
+   DETAIL MODAL
+════════════════════════════════════════════ */
+function openDetail(id) {
+  const l = LISTINGS.find(x => x.id === id);
+  if (!l) return;
+  const game = GAMES.find(g => g.id === l.game);
 
-        function exitAdminDashboard() {
-            document.getElementById('adminDashboard').classList.add('hidden');
-            document.getElementById('marketplaceView').classList.remove('hidden');
-            document.getElementById('adminBtn').innerText = "Admin Console";
-            document.getElementById('adminBtn').classList.remove('text-purple-400');
-            isAdminAuthenticated = false;
-            renderMarketplace();
-        }
+  document.getElementById('modalHero').innerHTML = l.emoji;
+  document.getElementById('modalHero').style.background = game?.bg || 'linear-gradient(135deg,#1a0a2e,#0a0a1e)';
+  document.getElementById('modalTitle').textContent = l.title;
+  document.getElementById('modalPrice').setAttribute('data-raw', l.price);
+  document.getElementById('modalPrice').textContent = l.price.toLocaleString();
+  document.getElementById('modalDesc').textContent = l.desc;
 
-        function exitAdminDashboardBtn() {
-            exitAdminDashboard();
-        }
+  let stats = [];
+  if (game?.type === 'mlbb') {
+    stats = [
+      { label:'Highest Rank', val: l.rank },
+      { label:'Account Level', val: 'Lvl ' + l.level },
+      { label:'Total Skins', val: l.skins + ' Skins' },
+      { label:'Game', val: 'MLBB' },
+    ];
+  } else {
+    const lvlLabel = game?.id === 'genshin' ? 'AR Level' : game?.id === 'hsr' ? 'Trailblaze Lvl' : 'Union Level';
+    stats = [
+      { label: lvlLabel, val: l.arLevel },
+      { label:'5★ Pulls', val: l.skins },
+      { label:'Server', val: l.server },
+      { label:'Game', val: game?.short || '' },
+    ];
+  }
 
-        // DATABASE DEPLOYMENT STRATEGIES
-        function addAsset() {
-            const game = document.getElementById('newGame').value;
-            const server = document.getElementById('newServer').value;
-            const level = document.getElementById('newLevel').value;
-            const desc = document.getElementById('newDesc').value;
-            const price = document.getElementById('newPrice').value;
-            const imgInput = document.getElementById('newImages').value;
+  document.getElementById('modalStats').innerHTML = stats.map(s =>
+    `<div class="modal-stat"><span class="modal-stat-label">${s.label}</span><span class="modal-stat-val">${s.val}</span></div>`
+  ).join('');
 
-            if(!server || !level || !desc || !price) {
-                alert("Complete required structure elements.");
-                return;
-            }
+  const screenshots = document.getElementById('modalScreenshots');
+  screenshots.innerHTML = (l.screenshots || []).map(s =>
+    `<div class="screenshot-thumb">${s}</div>`
+  ).join('');
 
-            // Processing multi-image arrays from listing
-            let imagesArray = [];
-            if(imgInput.trim() !== "") {
-                imagesArray = imgInput.split(',').map(url => url.trim());
-            } else {
-                imagesArray = ['https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=400&auto=format&fit=crop'];
-            }
+  document.getElementById('detailOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
 
-            const generatedId = Date.now();
-            let assetPayload = { id: generatedId, game, server, level, desc, price, images: imagesArray };
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
 
-            if(game === 'Mobile Legends') {
-                assetPayload.rank = document.getElementById('newRank') ? document.getElementById('newRank').value : 'Epic';
-                assetPayload.skins = document.getElementById('newSkins') ? document.getElementById('newSkins').value : '0';
-            } else {
-                assetPayload.skins = document.getElementById('newSkins') ? document.getElementById('newSkins').value : '0x5★';
-            }
+function closeDetailIfBg(e) {
+  if (e.target === document.getElementById('detailOverlay')) closeDetail();
+}
 
-            // Assign title fallback cleanly
-            assetPayload.title = `Tier ${level} Premium ${game} Profile`;
+function handleBuyNow() {
+  if (!currentUser) {
+    closeDetail();
+    setTimeout(() => openAuth(), 200);
+    showToast('Please log in to purchase', 'error');
+    return;
+  }
+  closeDetail();
+  confettiBurst();
+  showToast('🎉 Purchase initiated! Check your email.', 'success');
+}
 
-            inventory.unshift(assetPayload);
-            saveInventory();
-            renderAdminList();
-            renderMarketplace();
+/* ════════════════════════════════════════════
+   AUTH
+════════════════════════════════════════════ */
+let users = [{ username:'demo', password:'demo123', email:'demo@vaultx.com' }];
 
-            // Form Reset Array
-            document.getElementById('newServer').value = '';
-            document.getElementById('newLevel').value = '';
-            document.getElementById('newDesc').value = '';
-            document.getElementById('newPrice').value = '';
-            document.getElementById('newImages').value = '';
-            updateDynamicLabels();
-        }
+function openAuth() {
+  document.getElementById('authOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
 
-        function deleteAsset(id, event) {
-            if(event) event.stopPropagation();
-            if(confirm("Confirm hard removal tracking from engine memory?")) {
-                inventory = inventory.filter(item => item.id !== id);
-                saveInventory();
-                renderAdminList();
-                renderMarketplace();
-                if(activeDropdownId) closeDropdown(activeDropdownId);
-            }
-        }
+function closeAuth() {
+  document.getElementById('authOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
 
-        function renderAdminList() {
-            const list = document.getElementById('adminItemList');
-            list.innerHTML = '';
-            inventory.forEach(item => {
-                const div = document.createElement('div');
-                div.className = "flex justify-between items-center bg-black border border-gray-800 p-4 rounded-xl";
-                div.innerHTML = `
-                    <div>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-xs font-bold bg-gray-900 px-2 py-1 rounded text-purple-400">${item.game}</span>
-                            <span class="font-bold text-sm text-white">₱${parseInt(item.price).toLocaleString()}</span>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-1.5 truncate w-64 md:w-96">${item.desc}</p>
-                    </div>
-                    <button onclick="deleteAsset(${item.id}, event)" class="text-gray-500 hover:text-red-500 transition-colors p-2"><i class="fa-solid fa-trash-can"></i></button>
-                `;
-                list.appendChild(div);
-            });
-        }
-    </script>
+function closeAuthIfBg(e) {
+  if (e.target === document.getElementById('authOverlay')) closeAuth();
+}
+
+function switchTab(tab) {
+  document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+  document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+  document.getElementById('registerTab').classList.toggle('active', tab === 'register');
+}
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const found = users.find(x => x.username === u && x.password === p);
+  if (!found) { showToast('Invalid credentials', 'error'); return; }
+  currentUser = { username: u, isAdmin: false };
+  closeAuth();
+  updateNavUser();
+  showToast('Welcome back, ' + u + '! 👋', 'success');
+}
+
+function doRegister() {
+  const u = document.getElementById('regUser').value.trim();
+  const e = document.getElementById('regEmail').value.trim();
+  const p = document.getElementById('regPass').value;
+  if (!u || !e || !p) { showToast('Please fill all fields', 'error'); return; }
+  if (users.find(x => x.username === u)) { showToast('Username taken', 'error'); return; }
+  users.push({ username:u, password:p, email:e });
+  currentUser = { username:u, isAdmin:false };
+  closeAuth();
+  updateNavUser();
+  confettiBurst();
+  showToast('Welcome to VaultX, ' + u + '! 🚀', 'success');
+}
+
+function doLogout() {
+  currentUser = null;
+  updateNavUser();
+  showToast('Logged out. See you soon!', '');
+  if (currentPage === 'admin') goHome();
+}
+
+function updateNavUser() {
+  const btn = document.getElementById('authBtn');
+  if (currentUser) {
+    btn.textContent = '';
+    btn.innerHTML = `<span class="avatar-dot">${currentUser.username[0].toUpperCase()}</span>${currentUser.username} ▾`;
+    btn.id = 'userMenuBtn';
+    btn.onclick = doLogout;
+  } else {
+    btn.innerHTML = 'Login / Sign Up';
+    btn.id = 'authBtn';
+    btn.onclick = openAuth;
+  }
+}
+
+/* ════════════════════════════════════════════
+   ADMIN
+════════════════════════════════════════════ */
+const ADMIN_CREDS = { user:'admin', pass:'vaultx2024' };
+
+function openAdminLogin() {
+  if (currentUser?.isAdmin) { showPage('adminPage'); renderAdminTable(); return; }
+  document.getElementById('adminLoginOverlay').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+}
+
+function closeAdminLogin() {
+  document.getElementById('adminLoginOverlay').classList.add('hidden');
+  document.body.style.overflow='';
+}
+
+function closeAdminLoginIfBg(e) {
+  if (e.target === document.getElementById('adminLoginOverlay')) closeAdminLogin();
+}
+
+function doAdminLogin() {
+  const u = document.getElementById('adminUser').value.trim();
+  const p = document.getElementById('adminPass').value;
+  if (u === ADMIN_CREDS.user && p === ADMIN_CREDS.pass) {
+    currentUser = { username:'Admin', isAdmin:true };
+    closeAdminLogin();
+    updateNavUser();
+    document.getElementById('adminUserLabel').textContent = 'admin@vaultx.com';
+    showPage('adminPage');
+    renderAdminTable();
+    showToast('⚙ Admin access granted', 'success');
+  } else {
+    showToast('Access denied', 'error');
+  }
+}
+
+function renderAdminTable() {
+  const tbody = document.getElementById('adminTableBody');
+  tbody.innerHTML = '';
+  LISTINGS.forEach(l => {
+    const game = GAMES.find(g => g.id === l.game);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--text3);font-family:'Space Mono',monospace;font-size:0.75rem;">#${l.id}</td>
+      <td><span style="font-size:1.2rem">${l.emoji}</span> ${game?.short||''}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.title}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:0.8rem;">${l.level || l.arLevel || '—'}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:0.8rem;">${l.skins}</td>
+      <td style="color:var(--accent3);font-family:'Orbitron',monospace;font-weight:700;">₱${l.price.toLocaleString()}</td>
+      <td><button class="del-btn" onclick="deleteListing(${l.id})">🗑 Delete</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function deleteListing(id) {
+  if (!confirm('Delete this listing? This cannot be undone.')) return;
+  LISTINGS = LISTINGS.filter(l => l.id !== id);
+  renderAdminTable();
+  updateStatCount();
+  showToast('Listing deleted', 'error');
+}
+
+function openAddListing() {
+  document.getElementById('addListingOverlay').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+  toggleAdminFormFields();
+}
+
+function closeAddListing() {
+  document.getElementById('addListingOverlay').classList.add('hidden');
+  document.body.style.overflow='';
+}
+
+function closeAddListingIfBg(e) {
+  if (e.target === document.getElementById('addListingOverlay')) closeAddListing();
+}
+
+function toggleAdminFormFields() {
+  const game = document.getElementById('newGame').value;
+  const serverGroup = document.getElementById('serverGroup');
+  const rankGroup = document.getElementById('rankGroup');
+  const levelLabel = document.getElementById('levelLabel');
+  const isMlbb = game === 'mlbb';
+
+  serverGroup.classList.toggle('hidden', isMlbb);
+  rankGroup.classList.toggle('hidden', !isMlbb);
+
+  if (isMlbb) {
+    levelLabel.textContent = 'Account Level';
+    document.getElementById('newLevel').placeholder = 'e.g. 150';
+  } else {
+    const map = { genshin:'AR Level (e.g. AR60)', hsr:'TL Level (e.g. TL70)', wuwa:'UL Level (e.g. UL60)' };
+    levelLabel.textContent = map[game] || 'Level';
+    document.getElementById('newLevel').placeholder = map[game] || 'Level';
+  }
+}
+
+function doAddListing() {
+  const game = document.getElementById('newGame').value;
+  const title = document.getElementById('newTitle').value.trim();
+  const price = parseInt(document.getElementById('newPrice').value);
+  const level = document.getElementById('newLevel').value.trim();
+  const skins = parseInt(document.getElementById('newSkins').value);
+  const server = document.getElementById('newServer').value;
+  const rank = document.getElementById('newRank').value.trim();
+  const desc = document.getElementById('newDesc').value.trim();
+  const emoji = document.getElementById('newEmoji').value.trim() || '🎮';
+
+  if (!title || !price || !level || !skins) {
+    showToast('Please fill required fields', 'error');
+    return;
+  }
+
+  const gameObj = GAMES.find(g => g.id === game);
+  const newListing = {
+    id: nextId++,
+    game, emoji, title, price, desc,
+    badge: 'new',
+    screenshots: [emoji, '⭐', '🎮'],
+  };
+
+  if (game === 'mlbb') {
+    newListing.rank = rank || 'Epic';
+    newListing.level = parseInt(level) || 1;
+    newListing.skins = skins;
+  } else {
+    const pfx = { genshin:'AR', hsr:'TL', wuwa:'UL' }[game] || '';
+    newListing.arLevel = pfx + level.replace(/AR|TL|UL/gi,'');
+    newListing.skins = skins + '×5★';
+    newListing.server = server;
+  }
+
+  LISTINGS.push(newListing);
+  closeAddListing();
+  renderAdminTable();
+  updateStatCount();
+
+  // Clear form
+  ['newTitle','newPrice','newLevel','newSkins','newRank','newDesc','newEmoji'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+
+  showToast('✅ Listing published!', 'success');
+}
+
+/* ════════════════════════════════════════════
+   CHAT
+════════════════════════════════════════════ */
+const autoReplies = [
+  "Got it! Let me check our inventory for you. 🔍",
+  "That account looks great! Want me to reserve it while you review?",
+  "Our seller verified accounts come with a 24-hour warranty. ✅",
+  "Payment can be made via GCash, PayMaya, or bank transfer.",
+  "Account transfer takes around 15–30 minutes after payment confirmation.",
+  "Feel free to ask anything about a specific listing! 😊",
+  "We have a buyer protection policy on all purchases.",
+  "Yes, that server is available! We have multiple listings for it.",
+];
+
+let replyIdx = 0;
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  document.getElementById('chatPanel').classList.toggle('panel-hidden', !chatOpen);
+  document.getElementById('chatNotif').classList.toggle('hidden', chatOpen);
+  if (chatOpen) document.getElementById('chatInput').focus();
+}
+
+function openChat() {
+  if (!chatOpen) toggleChat();
+}
+
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const msgs = document.getElementById('chatMessages');
+  const now = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+
+  const outMsg = document.createElement('div');
+  outMsg.className = 'msg outgoing';
+  outMsg.innerHTML = `${text}<div class="msg-time">${currentUser?.username || 'You'} · ${now}</div>`;
+  msgs.appendChild(outMsg);
+
+  input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+
+  setTimeout(() => {
+    const reply = document.createElement('div');
+    reply.className = 'msg incoming';
+    reply.innerHTML = `${autoReplies[replyIdx % autoReplies.length]}<div class="msg-time">Support · ${now}</div>`;
+    msgs.appendChild(reply);
+    msgs.scrollTop = msgs.scrollHeight;
+    replyIdx++;
+  }, 800 + Math.random() * 600);
+}
+
+/* ════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════ */
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.className = ''; }, 3000);
+}
+
+/* ════════════════════════════════════════════
+   CONFETTI
+════════════════════════════════════════════ */
+function confettiBurst() {
+  const colors = ['#7b2fff','#ff2f7b','#2fffb4','#ffb42f','#2fd4ff','#fff'];
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    el.style.cssText = `
+      left:${Math.random()*100}%;
+      background:${color};
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      width:${Math.random()*10+4}px;
+      height:${Math.random()*10+4}px;
+      animation-duration:${Math.random()*2+1.5}s;
+      animation-delay:${Math.random()*0.5}s;
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
+}
+</script>
 </body>
 </html>
