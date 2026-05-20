@@ -3,108 +3,492 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS // Premium Account Marketplace</title>
-    <!-- Tailwind CSS for styling -->
+    <title>Nexus Vault | Premium Accounts</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for gaming icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Rajdhani', sans-serif;
-            background-color: #0b0c10;
-        }
-        .heading-font {
-            font-family: 'Orbitron', sans-serif;
-        }
-        .glow-purple {
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
-        }
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f111a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #8b5cf6;
-            border-radius: 3px;
-        }
-        .view-content {
-            transition: all 0.3s ease-in-out;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Inter:wght@400;600&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #fff; }
+        .heading-font { font-family: 'Rajdhani', sans-serif; }
+        .glass-panel { background: rgba(15, 15, 20, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .vault-card { transition: all 0.3s ease; }
+        .vault-card:hover { transform: translateY(-4px); border-color: rgba(168, 85, 247, 0.4); box-shadow: 0 10px 30px -10px rgba(168, 85, 247, 0.15); }
     </style>
 </head>
-<body class="text-gray-100 min-h-screen flex flex-col overflow-x-hidden">
+<body class="min-h-screen flex flex-col">
 
-    <!-- TOP NAVIGATION BAR -->
-    <nav class="border-b border-purple-900/40 bg-black/60 backdrop-blur-md sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
-        <!-- SECRET GESTURE: Double-tap or Double-click to open Admin Core Panel -->
-        <div class="flex items-center space-x-2 cursor-pointer select-none" onclick="handleLogoTap()">
-            <i class="fa-solid font-black text-2xl text-purple-500 fa-shield-halved animate-pulse"></i>
-            <span class="heading-font text-xl font-black tracking-widest bg-gradient-to-r from-purple-500 to-amber-400 bg-clip-text text-transparent">NEXUS</span>
-        </div>
-        <div class="flex items-center space-x-4 text-xs tracking-wider heading-font">
-            <span class="flex items-center text-green-400"><span class="h-2 w-2 rounded-full bg-green-400 inline-block mr-1.5 animate-ping"></span> ONLINE</span>
-            <button id="adminIndicator" onclick="toggleAdminPanel()" class="hidden bg-red-600 text-white font-bold px-2 py-0.5 rounded text-[10px]">ADMIN PANEL</button>
+    <!-- NAVIGATION -->
+    <nav class="border-b border-gray-800 bg-black/50 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-layer-group text-purple-500 text-xl"></i>
+                <span class="text-xl font-bold heading-font tracking-wider">NEXUS<span class="text-purple-500">VAULT</span></span>
+            </div>
+            <div>
+                <button onclick="toggleAdminAuth()" id="adminBtn" class="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-purple-400 transition-colors">
+                    <i class="fa-solid fa-lock mr-1"></i> Admin
+                </button>
+            </div>
         </div>
     </nav>
 
-    <!-- HIDDEN SECRET ADAPTIVE ADMIN PANEL CONSOLE -->
-    <div id="secretAdminConsole" class="hidden bg-gray-950 border-b-2 border-red-600 p-4 relative z-40 space-y-4">
-        <div class="flex justify-between items-center">
-            <h2 class="heading-font text-red-500 font-bold text-lg uppercase tracking-wider"><i class="fa-solid fa-screwdriver-wrench mr-2"></i>Nexus Vault Manager</h2>
-            <button onclick="toggleAdminPanel()" class="text-xs text-gray-400 bg-gray-900 px-2 py-1 rounded">Minimize</button>
+    <!-- ADMIN LOGIN MODAL -->
+    <div id="authModal" class="hidden fixed inset-0 z-[60] bg-black/90 flex items-center justify-center">
+        <div class="glass-panel p-8 rounded-2xl w-full max-w-sm mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold heading-font uppercase tracking-widest text-white">Vault Access</h2>
+                <button onclick="toggleAdminAuth()" class="text-gray-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="password" id="adminPassword" placeholder="Enter Access Code" class="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 mb-4 transition-all">
+            <button onclick="verifyAdmin()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl transition-all uppercase tracking-wider text-sm">Authenticate</button>
+            <p id="loginError" class="text-red-400 text-xs mt-3 hidden text-center">Invalid sequence.</p>
         </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 py-8 relative">
         
-        <!-- Mobile Form Structure -->
-        <div class="grid grid-cols-1 gap-3 text-sm">
-            <div>
-                <label class="block text-gray-400 text-xs font-bold uppercase mb-1">Target Gaming Ecosystem</label>
-                <select id="admGame" onchange="adaptAdminFormLabels()" class="w-full bg-gray-900 border border-purple-500/30 rounded-lg px-3 py-2 text-amber-400 focus:outline-none focus:border-red-500 font-bold">
-                    <option value="mlbb">Mobile Legends: Bang Bang</option>
-                    <option value="genshin">Genshin Impact</option>
-                    <option value="hsr">Honkai: Star Rail</option>
-                    <option value="wuwa">Wuthering Waves</option>
-                </select>
+        <!-- MARKETPLACE VIEW (Public) -->
+        <div id="marketplaceView" class="block">
+            <!-- Hero Section -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-bold heading-font uppercase tracking-tight mb-3">Premium <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-600">Accounts</span></h1>
+                <p class="text-gray-400 max-w-xl mx-auto text-sm">Secure, verified, and high-tier digital assets. All transactions are handled directly through our secure chat or Discord.</p>
             </div>
-            <div>
-                <label class="block text-gray-400 text-xs font-bold uppercase mb-1">Account Title / Catalog Description</label>
-                <input type="text" id="admTitle" placeholder="e.g., C6 R5 Endgame Whale Profile" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500">
+
+            <!-- Filter Chips -->
+            <div class="flex flex-wrap gap-2 justify-center mb-10" id="filterContainer">
+                <button onclick="filterMarketplace('All')" class="px-5 py-2 rounded-full bg-purple-600 text-white text-xs font-bold uppercase tracking-wider transition-all filter-btn">All Assets</button>
+                <button onclick="filterMarketplace('Genshin Impact')" class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-all filter-btn">Genshin</button>
+                <button onclick="filterMarketplace('Honkai Star Rail')" class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-all filter-btn">HSR</button>
+                <button onclick="filterMarketplace('Wuthering Waves')" class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-all filter-btn">WuWa</button>
+                <button onclick="filterMarketplace('Mobile Legends')" class="px-5 py-2 rounded-full bg-gray-900 border border-gray-800 text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-all filter-btn">MLBB</button>
             </div>
-            <div class="grid grid-cols-2 gap-2">
+
+            <!-- Inventory Grid -->
+            <div id="inventoryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cards generated by JS -->
+            </div>
+        </div>
+
+        <!-- ADMIN VAULT DASHBOARD (Hidden by default) -->
+        <div id="adminDashboard" class="hidden space-y-6">
+            <div class="flex justify-between items-center bg-gray-900 p-6 rounded-2xl border border-gray-800">
                 <div>
-                    <label class="block text-gray-400 text-xs font-bold uppercase mb-1">Price Tag (PHP)</label>
-                    <input type="text" id="admPrice" placeholder="₱12,500" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500">
+                    <h2 class="text-2xl font-bold heading-font text-white">Vault Management</h2>
+                    <p class="text-xs text-gray-400 mt-1">Add or remove assets from the public marketplace.</p>
                 </div>
-                <div>
-                    <label id="lblRank" class="block text-gray-400 text-xs font-bold uppercase mb-1">Account Rank</label>
-                    <input type="text" id="admRank" placeholder="Mythic 50 Stars" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500">
+                <button onclick="triggerAutoImport()" class="bg-gray-800 hover:bg-gray-700 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-lg text-purple-400 transition-colors">
+                    <i class="fa-solid fa-paste mr-1"></i> Quick Paste
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Add New Item Form -->
+                <div class="glass-panel p-6 rounded-2xl lg:col-span-1 h-fit border-t-4 border-t-purple-500">
+                    <h3 class="text-lg font-bold heading-font uppercase mb-4 text-white">Log New Asset</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Game Title</label>
+                            <select id="newGame" onchange="updateDynamicLabels()" class="w-full bg-black border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:border-purple-500 outline-none mt-1">
+                                <option value="Genshin Impact">Genshin Impact</option>
+                                <option value="Honkai Star Rail">Honkai Star Rail</option>
+                                <option value="Wuthering Waves">Wuthering Waves</option>
+                                <option value="Mobile Legends">Mobile Legends</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Server</label>
+                                <input type="text" id="newServer" placeholder="e.g. Asia" class="w-full bg-black border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:border-purple-500 outline-none mt-1">
+                            </div>
+                            <div>
+                                <label id="levelLabel" class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Adv. Rank (AR)</label>
+                                <input type="number" id="newLevel" placeholder="Level" class="w-full bg-black border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:border-purple-500 outline-none mt-1">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Brief Description</label>
+                            <textarea id="newDesc" rows="2" placeholder="C6 Raiden, R5 Engulfing..." class="w-full bg-black border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:border-purple-500 outline-none mt-1"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Listing Price (PHP)</label>
+                            <input type="number" id="newPrice" placeholder="e.g. 15000" class="w-full bg-black border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:border-purple-500 outline-none mt-1">
+                        </div>
+                        <div>
+                            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Cover Image URL</label>
+                            <input type="text" id="newImage" placeholder="https://..." class="w-full bg-black border border-gray-800 rounded-lg px-3 py-2 text-sm text-gray-400 focus:border-purple-500 outline-none mt-1">
+                        </div>
+                        <button onclick="addAsset()" class="w-full bg-white text-black font-bold uppercase tracking-wider text-xs py-3 rounded-lg hover:bg-purple-400 hover:text-white transition-all mt-2">
+                            Deploy to Marketplace
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Inventory List -->
+                <div class="glass-panel p-6 rounded-2xl lg:col-span-2">
+                    <h3 class="text-lg font-bold heading-font uppercase mb-4 text-white">Active Deployments</h3>
+                    <div id="adminItemList" class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                        <!-- Admin list items populated here -->
+                    </div>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-2">
+        </div>
+    </main>
+
+    <!-- IN-APP CHAT & GUEST PROFILE DRAWER -->
+    <div id="chatDrawer" class="hidden fixed inset-0 z-[60] bg-black/90 flex flex-col items-center justify-center p-4">
+        
+        <!-- 1. GUEST PROFILE SETUP -->
+        <div id="guestSetup" class="w-full max-w-md bg-gray-900 border border-gray-800 rounded-2xl p-6 hidden shadow-2xl">
+            <div class="flex justify-between items-start mb-6">
                 <div>
-                    <label id="lblWR" class="block text-gray-400 text-xs font-bold uppercase mb-1">Win Rate %</label>
-                    <input type="text" id="admWR" placeholder="68.5% WR" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500">
+                    <h3 class="text-xl font-bold text-white heading-font uppercase">Guest Profile Setup</h3>
+                    <p class="text-xs text-gray-400 mt-1">Establish a secure identity before negotiating.</p>
                 </div>
-                <div>
-                    <label id="lblSkinsCount" class="block text-gray-400 text-xs font-bold uppercase mb-1">Total Skins Count</label>
-                    <input type="number" id="admSkinsCount" placeholder="120" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500">
-                </div>
-            </div>
-            <div>
-                <label class="block text-gray-400 text-xs font-bold uppercase mb-1">Account Thumbnail Screenshot URL</label>
-                <input type="text" id="admImage" placeholder="https://i.ibb.co/your-screenshot.jpg" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500">
+                <button onclick="closeChat()" class="text-gray-500 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             
-            <div class="border-t border-gray-900 pt-3">
-                <p id="lblShowcaseHeader" class="text-xs text-amber-500 font-bold uppercase tracking-wider mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Add Premium Skins Visualizer Cards</p>
-                <div class="space-y-2" id="adminSkinsList">
-                    <!-- Dynamic skin or character rows populate here -->
+            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Display Name</label>
+            <input id="guestNameInput" type="text" placeholder="Enter your alias..." class="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-white mb-6 focus:outline-none focus:border-purple-500 mt-1">
+            <button onclick="saveGuestProfile()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl uppercase tracking-wider text-sm transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)]">Connect Securely</button>
+        </div>
+
+        <!-- 2. ACTUAL CHAT INTERFACE -->
+        <div id="chatInterface" class="w-full h-full max-w-md bg-[#0a0a0c] flex flex-col hidden rounded-2xl overflow-hidden border border-gray-800 shadow-2xl">
+            <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-purple-900/50 flex items-center justify-center border border-purple-500/30">
+                        <i class="fa-solid fa-robot text-purple-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold text-sm heading-font uppercase" id="chatPartner">Nexus Support</h3>
+                        <p class="text-[10px] text-gray-400" id="chatMeta">System Ready</p>
+                    </div>
                 </div>
+                <button onclick="closeChat()" class="text-gray-500 hover:text-white transition-colors w-8 h-8 rounded-full hover:bg-gray-800 flex items-center justify-center"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div id="chatBox" class="flex-grow p-4 space-y-4 overflow-y-auto bg-black/50">
+                <!-- Messages populated via JS -->
+            </div>
+            
+            <div class="p-4 bg-gray-900 border-t border-gray-800">
+                <div class="flex gap-2">
+                    <input id="msgInput" onkeypress="if(event.key === 'Enter') sendMessage()" type="text" placeholder="Type message..." class="flex-grow bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500">
+                    <button onclick="sendMessage()" class="bg-purple-600 hover:bg-purple-500 px-5 py-3 rounded-xl font-bold text-sm text-white transition-all shadow-lg"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT ENGINE -->
+    <script>
+        // STATE MANAGEMENT
+        let inventory = JSON.parse(localStorage.getItem('nexus_inventory')) || [];
+        let currentFilter = 'All';
+        let currentChatAccount = "";
+        const ADMIN_PASS = "admin123";
+
+        // INITIALIZATION
+        window.onload = () => {
+            if(inventory.length === 0) {
+                // Mock data if empty
+                inventory = [
+                    { id: 1, game: 'Genshin Impact', server: 'Asia', level: '60', desc: 'Whale Acc: C6 Raiden + R5 Engulfing, C6 Yelan. Triple Crowned main team.', price: '27000', image: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=400&auto=format&fit=crop' },
+                    { id: 2, game: 'Honkai Star Rail', server: 'America', level: '70', desc: 'E2 Acheron + Signature, E1 Fu Xuan, Sparkle. 30+ Pulls saved.', price: '12000', image: 'https://images.unsplash.com/photo-1620121692029-d088224ddc74?q=80&w=400&auto=format&fit=crop' }
+                ];
+                saveInventory();
+            }
+            renderMarketplace();
+        };
+
+        function saveInventory() {
+            localStorage.setItem('nexus_inventory', JSON.stringify(inventory));
+        }
+
+        // DYNAMIC LABELS LOGIC
+        function updateDynamicLabels() {
+            const game = document.getElementById('newGame').value;
+            const levelLabel = document.getElementById('levelLabel');
+            
+            if (game === 'Genshin Impact') levelLabel.innerText = 'Adv. Rank (AR)';
+            else if (game === 'Honkai Star Rail') levelLabel.innerText = 'Trailblaze Lvl (TL)';
+            else if (game === 'Wuthering Waves') levelLabel.innerText = 'Union Lvl (UL)';
+            else levelLabel.innerText = 'Account Level';
+        }
+
+        function getLevelPrefix(gameName) {
+            if(gameName === 'Genshin Impact') return 'AR';
+            if(gameName === 'Honkai Star Rail') return 'TL';
+            if(gameName === 'Wuthering Waves') return 'UL';
+            return 'LVL';
+        }
+
+        // QUICK PASTE AUTO-PARSER
+        function triggerAutoImport() {
+            const data = prompt("Paste account string (Format: Game, Server, Level, Price)\ne.g. 'Genshin Impact, Asia, AR 55, 12000'");
+            if(!data) return;
+            
+            const parts = data.split(',').map(s => s.trim());
+            if(parts.length >= 4) {
+                // Basic matching for game select
+                const gText = parts[0].toLowerCase();
+                let gameVal = "Genshin Impact";
+                if(gText.includes("star rail") || gText.includes("hsr")) gameVal = "Honkai Star Rail";
+                if(gText.includes("wuthering") || gText.includes("wuwa")) gameVal = "Wuthering Waves";
+                if(gText.includes("mobile legends") || gText.includes("mlbb")) gameVal = "Mobile Legends";
+
+                document.getElementById('newGame').value = gameVal;
+                updateDynamicLabels(); 
+                document.getElementById('newServer').value = parts[1];
+                document.getElementById('newLevel').value = parts[2].replace(/\D/g,''); // strip text like "AR"
+                document.getElementById('newPrice').value = parts[3].replace(/\D/g,'');
+                
+                alert("Data extracted! Please fill in the description and cover image.");
+            } else {
+                alert("Format not recognized. Please use commas to separate the 4 fields.");
+            }
+        }
+
+        // MARKETPLACE RENDER ENGINE
+        function filterMarketplace(game) {
+            currentFilter = game;
+            
+            // Update filter buttons UI
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.innerText.toLowerCase().includes(game.toLowerCase()) || (game === 'All' && btn.innerText === 'All Assets')) {
+                    btn.classList.replace('bg-gray-900', 'bg-purple-600');
+                    btn.classList.replace('text-gray-400', 'text-white');
+                    btn.classList.remove('border', 'border-gray-800');
+                } else {
+                    btn.classList.replace('bg-purple-600', 'bg-gray-900');
+                    btn.classList.replace('text-white', 'text-gray-400');
+                    btn.classList.add('border', 'border-gray-800');
+                }
+            });
+            renderMarketplace();
+        }
+
+        function renderMarketplace() {
+            const grid = document.getElementById('inventoryGrid');
+            grid.innerHTML = '';
+
+            const filtered = currentFilter === 'All' 
+                ? inventory 
+                : inventory.filter(item => item.game === currentFilter);
+
+            filtered.forEach(account => {
+                const prefix = getLevelPrefix(account.game);
+                
+                const card = document.createElement('div');
+                card.className = "vault-card glass-panel rounded-2xl overflow-hidden flex flex-col h-full";
+                card.innerHTML = `
+                    <div class="h-40 bg-gray-800 relative">
+                        ${account.image ? `<img src="${account.image}" class="w-full h-full object-cover opacity-70" alt="Cover">` : '<div class="w-full h-full flex items-center justify-center text-gray-700"><i class="fa-solid fa-image text-3xl"></i></div>'}
+                        <div class="absolute top-3 left-3 bg-black/80 backdrop-blur text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full border border-gray-700">
+                            ${account.game}
+                        </div>
+                        <div class="absolute bottom-3 right-3 bg-purple-600 text-white font-bold px-3 py-1 rounded-lg shadow-lg">
+                            ₱${parseInt(account.price).toLocaleString()}
+                        </div>
+                    </div>
+                    <div class="p-5 flex-grow flex flex-col">
+                        <div class="flex justify-between text-xs border-b border-gray-800 pb-3 mb-3">
+                            <span class="text-gray-400"><i class="fa-solid fa-globe mr-1"></i> <span class="text-white">${account.server}</span></span>
+                            <span class="text-gray-400">${prefix}: <span class="text-white font-bold">${account.level}</span></span>
+                        </div>
+                        <p class="text-sm text-gray-300 flex-grow leading-relaxed mb-5">${account.desc}</p>
+                        
+                        <div class="flex gap-2 mt-auto">
+                            <!-- In-App Chat Trigger -->
+                            <button onclick="openChat('ID #${account.id} - ${account.game}')" class="flex-grow h-11 bg-purple-950/40 hover:bg-purple-900 border border-purple-500/30 text-purple-300 font-bold uppercase text-xs tracking-widest heading-font rounded-xl transition-all flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-message text-xs"></i>
+                                <span>Message Seller</span>
+                            </button>
+                            <!-- External Discord Trigger -->
+                            <button onclick="window.open('https://discord.com', '_blank')" title="Transact via Discord" class="w-12 h-11 bg-gray-900 border border-gray-800 hover:border-indigo-500 hover:text-indigo-400 text-gray-400 rounded-xl flex items-center justify-center transition-all">
+                                <i class="fa-brands fa-discord text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // CHAT & GUEST IDENTITY SYSTEM
+        function openChat(accountRef) {
+            currentChatAccount = accountRef;
+            const drawer = document.getElementById('chatDrawer');
+            const setup = document.getElementById('guestSetup');
+            const chatUI = document.getElementById('chatInterface');
+            
+            drawer.classList.remove('hidden');
+            
+            const guestName = localStorage.getItem('nexus_guest_name');
+            if (!guestName) {
+                // Show Profile Setup
+                setup.classList.remove('hidden');
+                chatUI.classList.add('hidden');
+            } else {
+                // Show Chat Box directly
+                setup.classList.add('hidden');
+                chatUI.classList.remove('hidden');
+                document.getElementById('chatPartner').innerText = "Inquiry: " + accountRef;
+                document.getElementById('chatMeta').innerText = `Logged in as: ${guestName}`;
+                loadChatHistory();
+            }
+        }
+
+        function saveGuestProfile() {
+            const nameInput = document.getElementById('guestNameInput').value.trim();
+            if (nameInput === "") return;
+            
+            localStorage.setItem('nexus_guest_name', nameInput);
+            document.getElementById('guestSetup').classList.add('hidden');
+            document.getElementById('chatInterface').classList.remove('hidden');
+            document.getElementById('chatPartner').innerText = "Inquiry: " + currentChatAccount;
+            document.getElementById('chatMeta').innerText = `Logged in as: ${nameInput}`;
+            loadChatHistory();
+        }
+
+        function closeChat() {
+            document.getElementById('chatDrawer').classList.add('hidden');
+        }
+
+        function loadChatHistory() {
+            const chatBox = document.getElementById('chatBox');
+            chatBox.innerHTML = ''; 
+            
+            const history = JSON.parse(localStorage.getItem(`nexus_chat_${currentChatAccount}`)) || [];
+            
+            if (history.length === 0) {
+                chatBox.innerHTML = `<div class="text-center text-xs text-gray-600 my-4 uppercase tracking-widest font-bold">Encrypted Connection Established</div>`;
+            } else {
+                history.forEach(msg => {
+                    const div = document.createElement('div');
+                    if (msg.sender === 'user') {
+                        div.className = "flex justify-end mb-3";
+                        div.innerHTML = `<div class="bg-purple-600 px-4 py-2.5 rounded-2xl rounded-tr-sm text-sm text-white max-w-[85%] shadow-md leading-relaxed">${msg.text}</div>`;
+                    } else {
+                        div.className = "flex justify-start mb-3";
+                        div.innerHTML = `<div class="bg-gray-800 border border-gray-700 px-4 py-2.5 rounded-2xl rounded-tl-sm text-sm text-gray-200 max-w-[85%] shadow-md leading-relaxed">${msg.text}</div>`;
+                    }
+                    chatBox.appendChild(div);
+                });
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('msgInput');
+            const text = input.value.trim();
+            if (!text) return;
+            
+            const history = JSON.parse(localStorage.getItem(`nexus_chat_${currentChatAccount}`)) || [];
+            history.push({sender: 'user', text: text});
+            localStorage.setItem(`nexus_chat_${currentChatAccount}`, JSON.stringify(history));
+            
+            input.value = "";
+            loadChatHistory();
+            
+            // System Auto-Reply
+            if (history.length === 1) {
+                setTimeout(() => {
+                    const updatedHistory = JSON.parse(localStorage.getItem(`nexus_chat_${currentChatAccount}`)) || [];
+                    updatedHistory.push({sender: 'admin', text: `Automated: The owner has been notified regarding your inquiry on this asset. You can discuss details here or proceed to Discord if you require an immediate Trade Guardian.`});
+                    localStorage.setItem(`nexus_chat_${currentChatAccount}`, JSON.stringify(updatedHistory));
+                    loadChatHistory();
+                }, 1500);
+            }
+        }
+
+        // ADMIN FUNCTIONALITY
+        function toggleAdminAuth() {
+            const dashboard = document.getElementById('adminDashboard');
+            if(dashboard.classList.contains('hidden')) {
+                document.getElementById('authModal').classList.remove('hidden');
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('loginError').classList.add('hidden');
+            } else {
+                dashboard.classList.add('hidden');
+                document.getElementById('marketplaceView').classList.remove('hidden');
+                document.getElementById('adminBtn').classList.remove('text-purple-400');
+            }
+        }
+
+        function verifyAdmin() {
+            const input = document.getElementById('adminPassword').value;
+            if(input === ADMIN_PASS) {
+                document.getElementById('authModal').classList.add('hidden');
+                document.getElementById('marketplaceView').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                document.getElementById('adminBtn').classList.add('text-purple-400');
+                renderAdminList();
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
+        function addAsset() {
+            const game = document.getElementById('newGame').value;
+            const server = document.getElementById('newServer').value;
+            const level = document.getElementById('newLevel').value;
+            const desc = document.getElementById('newDesc').value;
+            const price = document.getElementById('newPrice').value;
+            const image = document.getElementById('newImage').value;
+
+            if(!server || !level || !desc || !price) {
+                alert("Please complete all required fields.");
+                return;
+            }
+
+            const newId = inventory.length > 0 ? Math.max(...inventory.map(i => i.id)) + 1 : 1;
+            
+            inventory.unshift({ id: newId, game, server, level, desc, price, image });
+            saveInventory();
+            renderAdminList();
+            renderMarketplace(); // Update public view in background
+
+            // Clear form
+            document.getElementById('newServer').value = '';
+            document.getElementById('newLevel').value = '';
+            document.getElementById('newDesc').value = '';
+            document.getElementById('newPrice').value = '';
+            document.getElementById('newImage').value = '';
+        }
+
+        function deleteAsset(id) {
+            inventory = inventory.filter(item => item.id !== id);
+            saveInventory();
+            renderAdminList();
+            renderMarketplace();
+        }
+
+        function renderAdminList() {
+            const list = document.getElementById('adminItemList');
+            list.innerHTML = '';
+
+            inventory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "flex justify-between items-center bg-black border border-gray-800 p-4 rounded-xl";
+                div.innerHTML = `
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs font-bold bg-gray-900 px-2 py-1 rounded text-purple-400">${item.game}</span>
+                            <span class="font-bold text-sm text-white">₱${parseInt(item.price).toLocaleString()}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2 truncate w-64">${item.desc}</p>
+                    </div>
+                    <button onclick="deleteAsset(${item.id})" class="text-gray-600 hover:text-red-500 transition-colors p-2"><i class="fa-solid fa-trash"></i></button>
+                `;
+                list.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
                 <button id="btnAddRow" onclick="addSkinRowField()" class="w-full mt-2 bg-gray-900 border border-gray-800 hover:bg-gray-800 text-gray-300 text-xs font-bold py-2 rounded-lg transition-colors">+ Add Asset to Showcase Card</button>
             </div>
 
